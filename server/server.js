@@ -1,39 +1,31 @@
-const express = require('express');
-const app = express();
-const http = require('http');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+import http from 'http';
+import dotenv from 'dotenv';
+import { Server as socketIo } from 'socket.io';
+import connectDB from './config/db.js';  // Import the connectDB function
+import initLeaderboardSocket from './leaderBoardSocket.js';
+import app from './index.js'; // Express app
+
+dotenv.config({ path: './.env' });
+
+// Create HTTP server from the Express app
 const server = http.createServer(app);
-const socketIo = require('socket.io');
-dotenv.config({ path: './config.env' });
-const io = socketIo(server, {
-    cors: {
-      origin: "http://localhost:5173", // your frontend URL
-      methods: ["GET", "POST"],
-    },
-  });
-  
-const initLeaderboardSocket = require('./leaderBoardSocket'); // Import the new file
-const DB = process.env.DATABASE_URL.replace(
-  '<DATABASE_PASSWORD>',
-  process.env.DATABASE_PASSWORD,
-);
 
-mongoose
-  .connect(DB, {
-    useNewUrlParser: true,
-    
-  
-  })
-  .then(() => {
-    // console.log(con.connections);s
-    console.log('DB connection successful');
-  });
-
-const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, () => {
-  console.log(`App running on port ${PORT}`);
+// Socket.IO setup
+const io = new socketIo(server, {
+  cors: {
+    origin: 'http://localhost:5173', // Replace with your frontend URL in production
+    methods: ['GET', 'POST'],
+  },
 });
 
+// Connect to MongoDB
+connectDB();
+
+// Init leaderboard socket handlers
 initLeaderboardSocket(io);
+
+// Start server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
