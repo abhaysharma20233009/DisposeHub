@@ -7,6 +7,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "./pages/register/Login";
 import Signup from "./pages/register/SignUp";
 import Leaderboard from './components/leaderboard';
+import ContactUsPage from './pages/ContactUsPage';
+import { Wallet } from '@mui/icons-material';
 
 
 
@@ -21,6 +23,7 @@ function App() {
         <Route path="/signup" element={ <Signup />} />
         <Route path="/leader-board" element={ <Leaderboard />} />
         <Route path="/withdrawl-money" element={<Wallet/>}/>
+        <Route path="/contact" element={<ContactUsPage/>} />
       </Routes>
     </Router>
 
