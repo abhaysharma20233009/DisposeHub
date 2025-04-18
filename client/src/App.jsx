@@ -7,6 +7,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "./pages/register/Login";
 import Signup from "./pages/register/SignUp";
 import Leaderboard from './components/leaderboard';
+import UserProfile from './pages/register/profile/profile';
+import EditUserProfile from './pages/register/profile/editProfile';
 
 
 
@@ -20,6 +22,8 @@ function App() {
         <Route path="/login" element={ <Login />} />
         <Route path="/signup" element={ <Signup />} />
         <Route path="/leader-board" element={ <Leaderboard />} />
+        <Route path="/editProfile" element={ <EditUserProfile />} />
+        <Route path="/profile" element={ <UserProfile />} />
       </Routes>
     </Router>
 
