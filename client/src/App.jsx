@@ -20,6 +20,7 @@ function App() {
         <Route path="/login" element={ <Login />} />
         <Route path="/signup" element={ <Signup />} />
         <Route path="/leader-board" element={ <Leaderboard />} />
+        <Route path="/withdrawl-money" element={<Wallet/>}/>
       </Routes>
     </Router>
 
