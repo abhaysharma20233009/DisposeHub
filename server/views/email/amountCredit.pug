@@ -1,0 +1,29 @@
+//- Email template adapted from https://github.com/leemunroe/responsive-html-email-template
+//- Converted from HTML using https://html2pug.now.sh/
+
+extends baseEmail
+
+block content
+  p Hi #{firstName},
+  p We’re happy to inform you that an amount has been successfully credited to your account.
+
+  p Here are the details:
+  ul
+    li Amount Credited: ₹#{amount}
+    li Date: #{date}
+    li Reference ID: #{referenceId}
+
+  p You can view this transaction by logging into your account:
+  table.btn.btn-primary(role='presentation', border='0', cellpadding='0', cellspacing='0')
+    tbody
+      tr
+        td(align='left')
+          table(role='presentation', border='0', cellpadding='0', cellspacing='0')
+            tbody
+              tr
+                td
+                  a(href=`${url}`, target='_blank') View Transaction
+
+  p If you have any questions, feel free to reply to this email.
+  p Thank you for using our service!
+
