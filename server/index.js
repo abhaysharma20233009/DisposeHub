@@ -2,6 +2,9 @@
 import express from 'express';
 import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
+import RewardDistributionRouter from './routes/adminRoutes.js';
+import walletRoutes from './routes/walletRoutes.js';
+import withdrawalRoute from './routes/withdrawalRoute.js';
 
 const app = express();
 
@@ -11,6 +14,9 @@ app.use(express.json());
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use('/api/v1/rewards', RewardDistributionRouter);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/withdrawal', withdrawalRoute);
 
 // Export app
 export default app;
