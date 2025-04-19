@@ -141,7 +141,7 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="flex flex-wrap gap-8 p-8 min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div className="flex items-center justify-center  gap-8 p-8 min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       {/* Profile Section */}
       <div className="w-400 md:w-2/4 bg-white/10 backdrop-blur-md border border-gray-700 shadow-lg rounded-3xl p-6 relative overflow-hidden">
         <button
@@ -150,7 +150,7 @@ export default function UserProfile() {
         >
           <FaEdit size={20} />
         </button>
-
+  
         {/* Profile Picture */}
         <div className="flex flex-col items-center">
           <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-cyan-400 shadow-lg">
@@ -161,14 +161,14 @@ export default function UserProfile() {
             />
           </div>
         </div>
-
+  
         {/* User Info */}
         <h2 className="mt-4 text-3xl font-bold text-cyan-400 text-center">{user.name}</h2>
         <p className="text-center text-gray-300">{user.email}</p>
-
+  
         {/* Points & Wallet Balance Sections with Animations */}
         <Box mt={4} display="flex" justifyContent="center" alignItems="center" gap={4}>
-          {/* Points Section with Growing Tree */}
+          {/* Points Section */}
           <Card
             sx={{
               width: 180,
@@ -190,8 +190,8 @@ export default function UserProfile() {
               </Typography>
             </CardContent>
           </Card>
-
-          {/* Wallet Balance Section with Falling Coins */}
+  
+          {/* Wallet Balance Section */}
           <Card
             sx={{
               width: 180,
@@ -205,18 +205,32 @@ export default function UserProfile() {
             }}
           >
             {generateCoins()}
-            <CardContent style={{ position: "relative", zIndex: 2 }}>
+            <CardContent style={{ position: "relative", zIndex: 2 }} sx={{ cursor: "pointer" }} onClick={() => navigate("/withdrawl-money")}>
               <Typography variant="h6" component="div" color="cyan">
                 Wallet Balance
               </Typography>
-              <Typography variant="h5" component="div" onClick={() => navigate("/withdrawl-money")}>
-  ${user.walletBalance?.toFixed(2) ?? "0.00"}
-</Typography>
-
+              <Typography
+                variant="h5"
+                component="div"
+              >
+                ${user.walletBalance?.toFixed(2) ?? "0.00"}
+              </Typography>
             </CardContent>
           </Card>
         </Box>
+  
+        {/* View Transactions Button */}
+        <div className="mt-16 mb-6 flex justify-center">
+          
+          <button
+            onClick={() => navigate("/transactions")}
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-lg font-semibold shadow-lg transition-all duration-300 ease-in-out"
+          >
+            View Your Transactions
+          </button>
+        </div>
       </div>
     </div>
   );
+  
 }

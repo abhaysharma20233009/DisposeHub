@@ -2,13 +2,13 @@ import catchAsync from "../utils/catchAsync.js";
 import Email from '../utils/email.js';
 import AppError from '../utils/appError.js';
 import User from "../models/userModel.js";
+import walletController from "./walletController.js";
 export const sendEmail = catchAsync(async (req, res, next) => {
   try {
     // await new Email().sendWelcome();
     const {uid}=req.params;
     const user =await User.findOne({firebaseUID:uid.trim()});
-    user.points=user.points-500;
-    user.walletBalance=user.walletBalance-500;
+    //await walletController.withdraw(user);
     await user.save();
     await new Email(user).sendOnAmountTransfer();
 

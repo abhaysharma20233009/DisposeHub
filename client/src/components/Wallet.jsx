@@ -52,7 +52,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000
   
         <p style={styles.balance}>
           Balance: <span style={styles.amount}>
-            {balance !== null ? `$${balance}` : 'Loading...'}
+            {balance !== null ? `₹${balance}` : 'Loading...'}
           </span>
         </p>
 {balance>=500 &&        <button style={styles.button} onClick={handleWithdrawClick}>Withdraw Money</button>}
