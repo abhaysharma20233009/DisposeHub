@@ -8,7 +8,7 @@ const initLeaderboardSocket = (io) => {
     try {
       // Send top 10 users
       const users = await User.find().sort({ points: -1 }).limit(10);
-      console.log(users);
+      //console.log(users);
       socket.emit('leaderboard', users);
     } catch (err) {
       console.error(err);

@@ -8,38 +8,38 @@ import {
   Box,
   IconButton,
   InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Visibility,
-  VisibilityOff,
+  VisibilityOff,     
   Google as GoogleIcon,
   Facebook as FacebookIcon,
 } from "@mui/icons-material";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase/config"; // Ensure this file exists
-import { signupUser } from "../../apis/authApi"; // API call to backend
+import { createUserWithEmailAndPassword,GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../../firebase/config";
+import { signupUser } from "../../apis/authApi";
 import Lottie from "lottie-react";
 import backgroundAnimation from "../../assets/animations/background-animation.json";
 import { Typewriter } from "react-simple-typewriter";
-import { useDispatch } from "react-redux"; // ✅ Import Redux Dispatch
-import { loginSuccess } from "../../redux/authSlice"; // ✅ Import Redux Action
-import { useEffect } from "react";
-import { checkUsernameAvailability } from "../../apis/authApi";
-import debounce from "lodash.debounce";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../../redux/authSlice";
 
 const SignupPage = () => {
   const [input, setInput] = useState({
     name: "",
-    username: "", // Replace username with username
     email: "",
     password: "",
     confirmPassword: "",
+    role: "user",
+    vehicleNumber: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [usernameStatus, setUsernameStatus] = useState(null); // null, true, or false
-  const [suggestedUsernames, setSuggestedUsernames] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -51,7 +51,6 @@ const SignupPage = () => {
     }
 
     try {
-      // Firebase Authentication (Signup with Email & Password)
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         input.email,
@@ -59,58 +58,64 @@ const SignupPage = () => {
       );
       const firebaseUser = userCredential.user;
 
-      console.log(firebaseUser);
-
-      // Store additional user details in the backend
       await signupUser({
         firebaseUID: firebaseUser.uid,
         name: input.name,
-        username: input.username,
         email: input.email,
+        role: input.role,
+        vehicleNumber: input.role === "driver" ? input.vehicleNumber : undefined,
       });
 
       dispatch(
         loginSuccess({
           uid: firebaseUser.uid,
           name: input.name,
-          username: input.username,
           email: input.email,
+          role: input.role,
+          vehicleNumber: input.role === "driver" ? input.vehicleNumber : undefined,
         })
       );
 
-      console.log("Signup successful!");
       navigate("/");
     } catch (error) {
       console.error("Signup error:", error.message);
       alert("Signup failed. Please try again.");
     }
   };
+  
+  const handleGoogleSignup = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
-  useEffect(() => {
-    if (input.username.trim() === "") {
-      setUsernameStatus(null);
-      setSuggestedUsernames([]);
-      return;
+      // Save user data to your backend
+      await signupUser({
+        firebaseUID: user.uid,
+        name: user.displayName,
+        email: user.email,
+        role: "user",  // Default or dynamic based on your app logic
+      });
+
+      // Dispatch login success
+      dispatch(
+        loginSuccess({
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          role: "user",  // Adjust if necessary
+        })
+      );
+
+      // Navigate to home/dashboard
+      navigate("/");
+
+    } catch (error) {
+      console.error("Google Sign-in error:", error.message);
+      alert("Failed to sign in with Google. Please try again.");
     }
-  
-    const debouncedCheck = debounce(async () => {
-      const isAvailable = await checkUsernameAvailability(input.username);
-      setUsernameStatus(isAvailable);
-  
-      if (!isAvailable) {
-        const suggestions = Array.from(
-          { length: 3 },
-          () => `${input.username}${Math.floor(Math.random() * 1000)}`
-        );
-        setSuggestedUsernames(suggestions);
-      } else {
-        setSuggestedUsernames([]);
-      }
-    }, 500);
-  
-    debouncedCheck();
-    return () => debouncedCheck.cancel();
-  }, [input.username]);
+  };
+
 
   return (
     <Box
@@ -125,7 +130,6 @@ const SignupPage = () => {
         padding: 0,
       }}
     >
-      {/* Background Animation */}
       <Box
         sx={{
           position: "absolute",
@@ -139,7 +143,6 @@ const SignupPage = () => {
         <Lottie animationData={backgroundAnimation} loop autoPlay />
       </Box>
 
-      {/* Typewriter Effect Text */}
       <Typography
         variant="h4"
         sx={{
@@ -161,7 +164,6 @@ const SignupPage = () => {
         />
       </Typography>
 
-      {/* Glassmorphic Signup Card */}
       <Paper
         elevation={10}
         sx={{
@@ -208,7 +210,37 @@ const SignupPage = () => {
             sx={inputStyles}
           />
 
-          {/* Password Fields in a Row */}
+          <FormControl fullWidth margin="normal" sx={inputStyles}>
+            <InputLabel id="role-select-label" sx={{ color: "#ffffff" }}>
+              Role
+            </InputLabel>
+            <Select
+              labelId="role-select-label"
+              value={input.role}
+              onChange={(e) => setInput({ ...input, role: e.target.value })}
+              label="Role"
+              sx={{ color: "#ffffff" }}
+            >
+              <MenuItem value="user">User</MenuItem>
+              <MenuItem value="driver">Driver</MenuItem>
+            </Select>
+          </FormControl>
+
+          {input.role === "driver" && (
+            <TextField
+              fullWidth
+              label="Vehicle Number"
+              variant="outlined"
+              margin="normal"
+              value={input.vehicleNumber}
+              onChange={(e) =>
+                setInput({ ...input, vehicleNumber: e.target.value })
+              }
+              required
+              sx={inputStyles}
+            />
+          )}
+
           <Box sx={{ display: "flex", gap: "1rem", width: "100%" }}>
             <TextField
               label="Password"
@@ -246,7 +278,7 @@ const SignupPage = () => {
                 setInput({ ...input, confirmPassword: e.target.value })
               }
               required
-              sx={{ ...inputStyles, flex: 1 }} // Makes it take equal space
+              sx={{ ...inputStyles, flex: 1 }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -275,17 +307,16 @@ const SignupPage = () => {
 
         <Divider sx={{ my: 3, borderColor: "#ffffff" }}>OR</Divider>
 
-        {/* Google Signup */}
         <Button
           fullWidth
           variant="outlined"
           startIcon={<GoogleIcon />}
           sx={socialButtonStyles}
+          onClick={handleGoogleSignup}
         >
           Continue with Google
         </Button>
 
-        {/* Facebook Signup */}
         <Button
           fullWidth
           variant="outlined"
@@ -295,7 +326,6 @@ const SignupPage = () => {
           Continue with Facebook
         </Button>
 
-        {/* Already have an account? Login Here */}
         <Typography variant="body2" sx={{ mt: 2, color: "#ffffff" }}>
           Already have an account?{" "}
           <Link to="/login" style={{ color: "#6E1EFF", fontWeight: "bold" }}>
@@ -314,6 +344,7 @@ const inputStyles = {
     "&:hover fieldset": { borderColor: "#ffffff" },
     "&.Mui-focused fieldset": { borderColor: "#ffffff" },
   },
+  "& .MuiInputBase-input": { color: "#ffffff" },
 };
 
 const buttonStyles = {
