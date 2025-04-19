@@ -9,8 +9,8 @@ import Signup from "./pages/register/SignUp";
 import Leaderboard from './components/leaderboard';
 import ContactUsPage from './pages/ContactUsPage';
 import { Wallet } from '@mui/icons-material';
-
-
+import UserProfile from './pages/register/profile/profile';
+import EditUserProfile from './pages/register/profile/editProfile';
 
 function App() {
 
@@ -22,6 +22,8 @@ function App() {
         <Route path="/login" element={ <Login />} />
         <Route path="/signup" element={ <Signup />} />
         <Route path="/leader-board" element={ <Leaderboard />} />
+        <Route path="/editProfile" element={ <EditUserProfile />} />
+        <Route path="/profile" element={ <UserProfile />} />
         <Route path="/withdrawl-money" element={<Wallet/>}/>
         <Route path="/contact" element={<ContactUsPage/>} />
       </Routes>
