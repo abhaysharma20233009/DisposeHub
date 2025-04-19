@@ -76,7 +76,7 @@ const SignupPage = () => {
         })
       );
 
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Signup error:", error.message);
       alert("Signup failed. Please try again.");
@@ -108,7 +108,7 @@ const SignupPage = () => {
       );
 
       // Navigate to home/dashboard
-      navigate("/");
+      navigate("/dashboard");
 
     } catch (error) {
       console.error("Google Sign-in error:", error.message);
