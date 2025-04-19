@@ -1,12 +1,17 @@
 
+
 import { Profiler, useState } from 'react'
+
 import 'leaflet/dist/leaflet.css';
 import './App.css'
-import LeafletMap from './components/LeafletMap';
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/register/Login";
 import Signup from "./pages/register/SignUp";
 import Leaderboard from './components/leaderboard';
+import Integrate from './pages/GeneralUser/Integrate';
+import DriverIntegrate from './pages/GeneralUser/driverIntegrate';
+//import RouteMap from './components/rasta';
 
 import Dashboard from './pages/home/Dashboard';
 import LandingPage from './pages/Landing';
@@ -22,11 +27,17 @@ import EditUserProfile from './pages/register/profile/editProfile';
 import TransactionsPage from './pages/TransactionPage';
 
 function App() {
+  const name = "Anshul";
+  const role = "driver"; 
 
   return (
 
     <Router>
       <Routes>
+
+        <Route path="/driver" element={ <DriverIntegrate role={role} name={name} />} />
+      
+
         <Route path="/" element={<LandingPage />} />
         <Route path="/map" element={<LeafletMap />} />
         <Route path="/login" element={ <Login />} />
@@ -40,6 +51,7 @@ function App() {
         <Route path="/withdrawl-money" element={<Wallet/>}/>
         <Route path="/contact" element={<ContactUsPage/>} />
         <Route path="/transactions" element={<TransactionsPage/>} />
+
       </Routes>
     </Router>
 

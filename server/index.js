@@ -2,8 +2,14 @@
 import express from 'express';
 import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
+
+import locationRoutes from './routes/loactionRoute.js'; 
+import garbageRoutes from './routes/garbageRoute.js';
+
+
 import dotenv from 'dotenv';
 import cloudinary from 'cloudinary';
+
 const app = express();
 import RewardDistributionRouter from './routes/adminRoutes.js';
 import walletRoutes from './routes/walletRoutes.js';
@@ -26,6 +32,10 @@ app.use(cors({
 
 // Routes
 app.use('/api/users', userRoutes);
+
+app.use('/api/location/', locationRoutes);
+app.use('/api/garbage', garbageRoutes); 
+
 app.use('/api/v1/rewards', RewardDistributionRouter);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/email', emailRoutes);
