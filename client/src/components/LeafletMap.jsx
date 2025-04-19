@@ -167,21 +167,6 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
   const [clickedLocation, setClickedLocation] = useState(null);
  
   useEffect(() => {
-<<<<<<< HEAD
-    
-    const updateLocation = () => {
-        if (navigator.geolocation ) {
-          navigator.geolocation.getCurrentPosition((position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            setMyLocation({ lat, lng });
-            socket.emit('location', { lat, lng });
-          });
-        }
-      };
-  
-    console.log(user+"User in Map", user);
-=======
     const updateLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
@@ -193,7 +178,6 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
       }
     };
   
->>>>>>> fc55336506d68588c9a54561f6f27036039c1df7
     if (user?.role !== 'user') return;
 
     const socket = io('http://localhost:3000');
@@ -311,10 +295,6 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
     }
   };
   
-<<<<<<< HEAD
-
-=======
->>>>>>> fc55336506d68588c9a54561f6f27036039c1df7
   if (user?.role !== 'user' || !myLocation) {
     return <div className="text-center mt-4">🛑 Only User can access the live map.</div>;
   }
