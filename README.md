@@ -15,12 +15,12 @@
 ---
 
 ## 🎥 Demo Video Link:
-<a href="https://youtu.be/dQw4w9WgXcQ">https://youtu.be/dQw4w9WgXcQ</a>
+<a href="https://www.youtube.com/watch?v=S7chtgKU1Nk">https://www.youtube.com/watch?v=S7chtgKU1Nk</a>
 
 ---
 
 ## 📽️ Presentation Link:
-<a href="https://bit.ly/hack36_24_ppt">PPT link here</a>
+<a href="https://docs.google.com/presentation/d/1G1JyV423-Sa4jH7xn1n_89HQsTEFkwLFAluf_A8qmag/edit?usp=sharing">PPT link here</a>
 
 ---
 
