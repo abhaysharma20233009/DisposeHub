@@ -1,15 +1,26 @@
 import { motion } from "framer-motion";
-import { FaRecycle, FaLaptop, FaCamera, FaMapMarkerAlt } from "react-icons/fa";
+import { FaRecycle, FaBell,FaLaptop, FaCamera, FaTruck ,FaMapMarkerAlt } from "react-icons/fa";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import aiCameraImage from '../assets/garbage1.jpg';
+import pickupImage from '../assets/garbage1.jpg';
 import locationImage from '../assets/garbage2.jpg';
 import instantResultsImage from '../assets/garbage4.jpg';
 import recyclingInfoImage from '../assets/education.jpg';
 import garbageCollectionImage from '../assets/garbage_van.jpg';
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 
 
 export default function LandingPage() {
+
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        // Example: checking token existence
+        const token = localStorage.getItem("token");
+        setIsLoggedIn(!!token);
+    }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-800 text-white flex flex-col items-center justify-center p-8">
       {/* Header Section */}
@@ -97,27 +108,30 @@ export default function LandingPage() {
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-16 px-4">
-            <FeatureCard
-                icon={<FaLaptop size={50} className="text-yellow-400 mb-4" />}
-                title="AI Camera Support"
-                desc="Snap a photo and let AI tell you how to dispose of it properly!"
-                image={aiCameraImage}
-                className="bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white hover:shadow-2xl transition duration-300 ease-in-out p-6 rounded-2xl border border-yellow-500"
+        <FeatureCard
+            icon={<FaBell size={50} className="text-yellow-400 mb-4" />}
+            title="Notify Garbage"
+            desc="Users can easily notify authorities about garbage that needs pickup with just one tap."
+            image={instantResultsImage}
+            className="bg-gradient-to-tr from-purple-900 via-purple-800 to-black text-white hover:shadow-2xl transition duration-300 ease-in-out p-6 rounded-2xl border border-yellow-500"
             />
+
             <FeatureCard
-                icon={<FaMapMarkerAlt size={50} className="text-green-400 mb-4" />}
-                title="Location-Based Rules"
-                desc="Accurate segregation based on local area regulations."
-                image={locationImage}
-                className="bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white hover:shadow-2xl transition duration-300 ease-in-out p-6 rounded-2xl border border-green-500"
+            icon={<FaMapMarkerAlt size={50} className="text-green-400 mb-4" />}
+            title="Location-Based Collection"
+            desc="Garbage collectors get real-time tasks based on reported locations nearby."
+            image={locationImage}
+            className="bg-gradient-to-tr from-purple-900 via-purple-800 to-black text-white hover:shadow-2xl transition duration-300 ease-in-out p-6 rounded-2xl border border-green-500"
             />
+
             <FeatureCard
-                icon={<FaCamera size={50} className="text-blue-400 mb-4" />}
-                title="Instant Results"
-                desc="Get quick segregation suggestions by typing the item."
-                image={instantResultsImage}
-                className="bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white hover:shadow-2xl transition duration-300 ease-in-out p-6 rounded-2xl border border-blue-500"
+            icon={<FaTruck size={50} className="text-blue-400 mb-4" />}
+            title="Efficient Pickup"
+            desc="Collectors confirm, pass, or mark garbage as picked directly from the dashboard."
+            image={pickupImage}
+            className="bg-gradient-to-tr from-purple-900 via-purple-800 to-black text-white hover:shadow-2xl transition duration-300 ease-in-out p-6 rounded-2xl border border-blue-500"
             />
+
         </div>
 
 
@@ -163,17 +177,27 @@ export default function LandingPage() {
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap gap-6 justify-center mb-20">
-        <Link to="/login">
-            <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-10 py-4 rounded-full text-xl font-semibold shadow-xl transition duration-300 ease-in-out hover:scale-110 hover:shadow-yellow-300/50">
-            Login
-            </button>
-        </Link>
+        {!isLoggedIn ? (
+            <>
+            <Link to="/login">
+                <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-10 py-4 rounded-full text-xl font-semibold shadow-xl transition duration-300 ease-in-out hover:scale-110 hover:shadow-yellow-300/50">
+                Login
+                </button>
+            </Link>
 
-        <Link to="/signup">
-            <button className="bg-white hover:bg-gray-100 text-purple-800 border-2 border-yellow-400 px-10 py-4 rounded-full text-xl font-semibold shadow-xl transition duration-300 ease-in-out hover:scale-110 hover:border-yellow-500">
-            Sign Up
+            <Link to="/signup">
+                <button className="bg-white hover:bg-gray-100 text-purple-800 border-2 border-yellow-400 px-10 py-4 rounded-full text-xl font-semibold shadow-xl transition duration-300 ease-in-out hover:scale-110 hover:border-yellow-500">
+                Sign Up
+                </button>
+            </Link>
+            </>
+        ) : (
+            <Link to="/dashboard">
+            <button className="bg-purple-700 hover:bg-purple-800 text-white px-10 py-4 rounded-full text-xl font-semibold shadow-xl transition duration-300 ease-in-out hover:scale-110 hover:shadow-purple-500/50">
+                Go to Dashboard
             </button>
-        </Link>
+            </Link>
+        )}
         </div>
 
         {/* Testimonials */}
