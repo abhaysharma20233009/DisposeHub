@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import WithdrawalForm from './WithdrawalForm';
-
+import axios from 'axios';
 export const Wallet = () => {
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const [isFormVisible, setIsFormVisible] = useState(false);
-  const [balance, setBalance] = useState(null);
+  const [balance, setBalance] = useState(0);
 
   const handleWithdrawClick = () => {
     setIsFormVisible(true);
@@ -22,28 +24,38 @@ export const Wallet = () => {
   useEffect(() => {
     const fetchWalletBalance = async () => {
       try {
-        const firebaseUID = localStorage.getItem('firebaseUID'); // or get from context
-        const res = await fetch(`http://localhost:3000/api/user/${firebaseUID}`);
-        const data = await res.json();
-        setBalance(data.walletBalance);
-      } catch (err) {
-        console.error("Failed to fetch wallet balance", err);
+        const firebaseUID = localStorage.getItem("firebaseUID"); 
+    
+        if (!firebaseUID) {
+          throw new Error("User UID not found in localStorage");
+        }
+    
+        const response = await axios.get(
+          `${API_BASE_URL}/users/${firebaseUID.trim()}`
+        );
+         //console.log(response.data.user.walletBalance+response);
+      await setBalance(response.data.user.walletBalance);
+      } catch (error) {
+        console.error("Error fetching user by UID:", error);
+        throw error.response?.data || { message: "Failed to fetch user" };
       }
     };
-
+  
     fetchWalletBalance();
   }, []);
+  
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.heading}>💰 Your Wallet</h2>
+  
         <p style={styles.balance}>
           Balance: <span style={styles.amount}>
             {balance !== null ? `$${balance}` : 'Loading...'}
           </span>
         </p>
-        <button style={styles.button} onClick={handleWithdrawClick}>Withdraw Money</button>
+{balance>=500 &&        <button style={styles.button} onClick={handleWithdrawClick}>Withdraw Money</button>}
 
         {isFormVisible && (
           <div style={styles.formContainer}>

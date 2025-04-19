@@ -5,8 +5,8 @@ import { getMe } from "../../../../src/apis/userApi";
 import { Card, CardContent, Typography, Box } from "@mui/material";
 import { useSpring, animated, config } from "react-spring";
 import styled, { keyframes } from "styled-components";
-
 // Keyframes for animations
+
 const fall = keyframes`
   0% {
     top: -20px;
@@ -71,6 +71,7 @@ const Tree = styled.div`
 `;
 
 export default function UserProfile() {
+  
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -208,9 +209,10 @@ export default function UserProfile() {
               <Typography variant="h6" component="div" color="cyan">
                 Wallet Balance
               </Typography>
-              <Typography variant="h5" component="div">
-                ${user.walletBalance?.toFixed(2) ?? "0.00"}
-              </Typography>
+              <Typography variant="h5" component="div" onClick={() => navigate("/withdrawl-money")}>
+  ${user.walletBalance?.toFixed(2) ?? "0.00"}
+</Typography>
+
             </CardContent>
           </Card>
         </Box>

@@ -187,12 +187,13 @@ export const register = async (req, res) => {
  * Fetch user by Firebase UID
  */
 export const getUserByUID = async (req, res) => {
+  
     try {
       const { uid } = req.params;
-      console.log(`Looking for user with UID: [${uid}]`);
+      //console.log(`Looking for user with UID: [${uid}]`);
   
       const user = await User.findOne({ firebaseUID: uid.trim() });
-      console.log("Found user:", user);
+     // console.log("Found userId:", user);
   
       if (!user) {
         return res.status(404).json({ success: false, message: "User not found" });

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import axios from 'axios';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 const WithdrawalForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,11 +14,26 @@ const WithdrawalForm = ({ onSubmit, onCancel }) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.account !== formData.confirmAccount) {
       alert('Account numbers do not match!');
       return;
+    }
+    try {
+      const firebaseUID = localStorage.getItem("firebaseUID"); 
+    
+      if (!firebaseUID) {
+        throw new Error("User UID not found in localStorage");
+      }
+  
+      const response = await axios.get(
+        `${API_BASE_URL}/email/send-email/${firebaseUID.trim()}`
+      );
+      console.log(response);
+     // setBalance(response.data.user.walletBalance);
+    } catch (err) {
+      console.error("Failed to fetch wallet balance", err);
     }
 
     onSubmit(formData);
