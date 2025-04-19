@@ -57,7 +57,7 @@ const LoginPage = () => {
       );
       console.log("User logged in:", userCredential);
       console.log("Login successful!");
-      navigate("/login");
+      navigate("/leader-board");
     } catch (error) {
       console.error("Login error:", error.message);
       setError("Invalid email or password. Please try again.");
@@ -80,7 +80,7 @@ const LoginPage = () => {
       );
   
       console.log("Google Login successful!");
-      navigate("/login");
+      navigate("/leader-board");
     } catch (err) {
       console.error("Google login error:", err.message);
       setError("Google login failed. Please try again.");
