@@ -227,45 +227,53 @@ export default function UserDashboard() {
 
     {/* Garbage Store Places */}
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.6, duration: 0.5 }}
-      className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center min-h-[300px] flex flex-col justify-between"
-    >
-      <div>
-        <h3 className="font-bold text-xl text-white mb-4">Garbage Store Places</h3>
-        <p className="text-sm text-white mb-4">
-          View official locations where collected garbage can be safely stored before
-          municipal pickup.
-        </p>
-        <ul className="text-white text-sm space-y-2">
-          <li>Store Location 1</li>
-          <li>Store Location 2</li>
-          <li>Store Location 3</li>
-        </ul>
-      </div>
-    </motion.div>
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 h-80 flex flex-col justify-between"
+        >
+        <div className="space-y-6 text-base text-white">
+            <h3 className="text-xl font-bold mb-2 text-center">Your Achievements</h3>
+            <div className="flex justify-between">
+            <span className="font-medium">Points Earned:</span>
+            <span className="font-bold text-purple-300">{user.points}</span>
+            </div>
+            <div className="flex justify-between">
+            <span className="font-medium">Wallet Balance:</span>
+            <span className="font-bold text-purple-300">₹{user.walletBalance}</span>
+            </div>
+            <p className="text-sm mt-4 text-center">
+            These reflect your contribution and rewards in the community.
+            </p>
+        </div>
+
+        {/* All Transactions Button */}
+        <div className="mt-4 text-center">
+            <Link to="/transactions">
+                <Button
+                variant="contained"
+                sx={{
+                    borderRadius: "999px",
+                    px: 4,
+                    py: 1,
+                    textTransform: "none",
+                    bgcolor: "#9C27B0",
+                    "&:hover": {
+                    bgcolor: "#7B1FA2",
+                    },
+                }}
+                >
+                All Transactions
+            </Button>
+            </Link>
+        </div>
+        </motion.div>
   </div>
 
   {/* Bottom Cards */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full max-w-5xl">
+  <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-8 w-full max-w-5xl">
     {/* Places Garbage Picked */}
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.8, duration: 0.5 }}
-      className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center min-h-[300px] flex flex-col justify-between"
-    >
-      <div>
-        <h3 className="font-bold text-xl text-white mb-4">Places Garbage Picked</h3>
-        <p className="text-sm text-white mb-4">
-          A running count of locations where you’ve actively picked up and managed garbage
-          helps track impact.
-        </p>
-      </div>
-      <p className="text-3xl text-white font-bold">5</p>
-    </motion.div>
-
+   
     {/* Edit Profile Again */}
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -319,14 +327,14 @@ export default function UserDashboard() {
       {/* Conditional rendering based on user role */}
       {user.role === "user" ? renderUserSections() : renderDriverSections()}
 
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
         className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 mt-12 border border-purple-400 hover:shadow-purple-200 text-center"
       >
         <h2 className="text-2xl font-bold">Let's make the world cleaner!</h2>
-      </motion.div>
+      </motion.div> */}
     </div>
   );
 }

@@ -13,31 +13,43 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-purple-700 text-white px-8 py-4 shadow-md flex justify-between items-center">
+    <nav className="bg-gray-900 text-white px-8 py-4 shadow-md flex justify-between items-center">
       <div className="text-2xl font-bold tracking-wide">
         <Link to="/">DisposeHub</Link>
       </div>
-      <div className="space-x-6">
-        <Link to="/" className="hover:underline text-lg">Home</Link>
-        <Link to="/dashboard" className="hover:underline text-lg">Dashboard</Link>
-      </div>
+      <div className="space-x-4 flex">
+        <Link
+            to="/"
+            className="inline-block  bg-zinc-500 text-white font-medium px-10 py-2 rounded-lg shadow-md hover:from-purple-600 hover:to-fuchsia-700 transition-all duration-300"
+        >
+            Home
+        </Link>
+        <Link
+            to="/dashboard"
+            className="inline-block bg-zinc-500 text-white font-medium px-5 py-2 rounded-lg shadow-md hover:from-purple-600 hover:to-fuchsia-700 transition-all duration-300"
+        >
+            Dashboard
+        </Link>
+        </div>
+
       <div>
-        <Button
-          variant="contained"
-          onClick={handleLogout}
-          sx={{
+      <Button
+        variant="contained"
+        onClick={handleLogout}
+        sx={{
             textTransform: "none",
             borderRadius: "999px",
-            bgcolor: "#ffffff",
-            color: "#9C27B0",
+            bgcolor: "#e53935", // red shade
+            color: "#ffffff", // white text
             fontWeight: "bold",
             "&:hover": {
-              bgcolor: "#f0e6f6",
-            }
-          }}
+            bgcolor: "#d32f2f", // darker red on hover
+            },
+        }}
         >
-          Logout
+        Logout
         </Button>
+
       </div>
     </nav>
   );
