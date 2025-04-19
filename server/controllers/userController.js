@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 import fs from 'fs';
+import Email from "../utils/email.js";
 
 /**
  * Add a new user to the database after Firebase Signup
@@ -114,6 +115,7 @@ export const register = async (req, res) => {
         });
   
         await newUser.save();
+        await new Email(newUser,0).sendWelcome();
   
         return res.status(201).json({
           success: true,
@@ -163,6 +165,8 @@ export const register = async (req, res) => {
       });
   
       await newUser.save();
+      await new Email(newUser,0).sendWelcome();
+
   
       return res.status(201).json({
         success: true,
