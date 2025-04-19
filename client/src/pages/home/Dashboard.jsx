@@ -102,7 +102,7 @@ export default function UserDashboard() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center mt-6"
+        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-100 text-center mt-6"
       >
         <Link to="/leaflet-map">
           <Button
@@ -133,7 +133,7 @@ export default function UserDashboard() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 flex flex-col items-center border border-purple-400 hover:shadow-purple-200 w-full max-w-lg"
+        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 flex flex-col items-center border border-purple-400 hover:shadow-purple-100 w-full max-w-lg"
       >
         <Avatar
           src="https://i.pravatar.cc/100" // You can replace this with user.profilePicture
@@ -150,7 +150,7 @@ export default function UserDashboard() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center mt-6 w-full max-w-lg"
+        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-100 text-center mt-6 w-full max-w-lg"
       >
         <Link to="/edit-profile">
           <Button
