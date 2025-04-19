@@ -10,7 +10,7 @@
 ---
 
 ## 🧾 Introduction:
-**Smart Dustbin Locator** is a location-based web application that enables users to find the nearest dustbins using live maps. It allows users to suggest new dustbin locations and rewards them with redeemable points when their suggested location is used by garbage collection drivers. This helps promote cleanliness through gamified community engagement.
+**DisposeHub** is a location-based web application that enables users to find the nearest dustbins using live maps. It allows users to suggest new dustbin locations and rewards them with redeemable points when their suggested location is used by garbage collection drivers. This helps promote cleanliness through gamified community engagement.
 
 ---
 
