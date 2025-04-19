@@ -1,38 +1,40 @@
 
-
+import { useLocation } from "react-router-dom";
+import LeafletMap from './components/LeafletMap';
+import Login from "./pages/register/Login";
+import Signup from "./pages/register/SignUp";
 import { Profiler, useState } from 'react'
 
 import 'leaflet/dist/leaflet.css';
 import './App.css'
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/register/Login";
-import Signup from "./pages/register/SignUp";
-import Leaderboard from './components/leaderboard';
 import Integrate from './pages/GeneralUser/Integrate';
 import DriverIntegrate from './pages/GeneralUser/driverIntegrate';
 //import RouteMap from './components/rasta';
-
 import Dashboard from './pages/home/Dashboard';
 import LandingPage from './pages/Landing';
-
 import ContactUsPage from './pages/ContactUsPage';
-
 import { Wallet } from './components/Wallet';
-
-
-
 import UserProfile from './pages/register/profile/profile';
 import EditUserProfile from './pages/register/profile/editProfile';
 import TransactionsPage from './pages/TransactionPage';
+import Navbar from './components/Navbar'; // ← import the Navbar
+import './App.css';
+import 'leaflet/dist/leaflet.css';
 
 function App() {
+
+  const location = useLocation();
+  const hideNavbar = location.pathname === "/";
+
   const name = "Anshul";
   const role = "driver"; 
 
-  return (
 
-    <Router>
+  return (
+    <>
+      {!hideNavbar && <Navbar />}
       <Routes>
 
         <Route path="/driver" element={ <DriverIntegrate role={role} name={name} />} />
@@ -40,6 +42,7 @@ function App() {
 
         <Route path="/" element={<LandingPage />} />
         <Route path="/map" element={<LeafletMap />} />
+
         <Route path="/login" element={ <Login />} />
         <Route path="/signup" element={ <Signup />} />
         <Route path="/leader-board" element={ <Leaderboard />} />
@@ -53,9 +56,14 @@ function App() {
         <Route path="/transactions" element={<TransactionsPage/>} />
 
       </Routes>
-    </Router>
-
+    </>
   );
 }
 
-export default App;
+export default function WrappedApp() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}

@@ -34,242 +34,272 @@ export default function UserDashboard() {
   }
 
   const renderUserSections = () => (
-    <>
-      {/* Profile Picture */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 flex flex-col items-center border border-purple-400 hover:shadow-purple-200"
-      >
-        <Avatar
-          src={user.profilePicture || "https://i.pravatar.cc/100"}
-          sx={{ width: 120, height: 120, bgcolor: "#9C27B0", mb: 3 }}
-        />
-        <h2 className="text-3xl font-bold text-white mb-1">{user.name}</h2>
-        <p className="text-sm font-semibold bg-purple-700/30 text-white px-4 py-1 rounded-full mt-2 shadow-sm">
-          {user.role}
-        </p>
-      </motion.div>
+    <div className="min-h-screen flex flex-col items-center py-12 px-6">
+  {/* First Row - Profile & Points */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
+    {/* Profile Picture */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 flex flex-col items-center justify-center border border-purple-400 hover:shadow-purple-200 h-80"
+    >
+      <Avatar
+        src={user.profilePicture || "https://i.pravatar.cc/100"}
+        sx={{ width: 120, height: 120, bgcolor: "#9C27B0", mb: 3 }}
+      />
+      <h2 className="text-3xl font-bold text-white mb-1">{user.name}</h2>
+      <p className="text-sm font-semibold bg-purple-700/30 text-white px-4 py-1 rounded-full mt-2 shadow-sm">
+        {user.role}
+      </p>
+      <p className="text-xs text-white mt-4 text-center">
+        This is your public profile info. Make sure it's up to date so others can recognize your role.
+      </p>
+    </motion.div>
 
-      {/* Points and Wallet */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200"
-      >
-        <div className="space-y-6 text-base text-white">
-          <div className="flex justify-between">
-            <span className="font-medium">Points Earned:</span>
-            <span className="font-bold text-purple-300">{user.points}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="font-medium">Wallet Balance:</span>
-            <span className="font-bold text-purple-300">₹{user.wallet}</span>
-          </div>
-        </div>
-      </motion.div>
+    {/* Points and Wallet */}
+    <motion.div
+  initial={{ opacity: 0, scale: 0.95 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ delay: 0.2, duration: 0.5 }}
+  className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 h-80 flex flex-col justify-between"
+>
+  <div className="space-y-6 text-base text-white">
+    <h3 className="text-xl font-bold mb-2 text-center">Your Achievements</h3>
+    <div className="flex justify-between">
+      <span className="font-medium">Points Earned:</span>
+      <span className="font-bold text-purple-300">{user.points}</span>
+    </div>
+    <div className="flex justify-between">
+      <span className="font-medium">Wallet Balance:</span>
+      <span className="font-bold text-purple-300">₹{user.walletBalance}</span>
+    </div>
+    <p className="text-sm mt-4 text-center">
+      These reflect your contribution and rewards in the community.
+    </p>
+  </div>
 
-      {/* Edit Profile Button */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center mt-6"
-      >
-        <Link to="/edit-profile">
-          <Button
-            variant="contained"
-            sx={{
-              borderRadius: "999px",
-              px: 4,
-              py: 1,
-              textTransform: "none",
-              bgcolor: "#9C27B0",
-              "&:hover": {
-                bgcolor: "#7B1FA2",
-              },
-            }}
-          >
-            Edit Profile
-          </Button>
-        </Link>
-      </motion.div>
+  {/* All Transactions Button */}
+  <div className="mt-4 text-center">
+    <Link to="/transactions">
+        <Button
+          variant="contained"
+          sx={{
+            borderRadius: "999px",
+            px: 4,
+            py: 1,
+            textTransform: "none",
+            bgcolor: "#9C27B0",
+            "&:hover": {
+              bgcolor: "#7B1FA2",
+            },
+          }}
+        >
+        All Transactions
+      </Button>
+    </Link>
+  </div>
+</motion.div>
 
-      {/* Find Nearby Dustbins (Route to LeafletMap.jsx) */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center mt-6"
-      >
-        <Link to="/leaflet-map">
-          <Button
-            variant="outlined"
-            sx={{
-              borderRadius: "999px",
-              px: 4,
-              py: 1,
-              textTransform: "none",
-              color: "#fff",
-              borderColor: "#9C27B0",
-              "&:hover": {
-                borderColor: "#fff",
-                bgcolor: "#7B1FA230",
-              },
-            }}
-          >
-            Find Nearby Dustbins
-          </Button>
-        </Link>
-      </motion.div>
-    </>
+  </div>
+
+  {/* Second Row - Edit Profile & Find Dustbins */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 w-full max-w-5xl">
+    {/* Edit Profile Button */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.4, duration: 0.5 }}
+      className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 h-80 flex flex-col justify-center items-center text-center"
+    >
+      <h3 className="text-xl font-bold text-white mb-4">Update Your Profile</h3>
+      <p className="text-sm text-white mb-6 max-w-sm">
+        Keep your profile info fresh. Click below to update your name, photo, or other personal info.
+      </p>
+      <Link to="/profile">
+        <Button
+          variant="contained"
+          sx={{
+            borderRadius: "999px",
+            px: 4,
+            py: 1,
+            textTransform: "none",
+            bgcolor: "#9C27B0",
+            "&:hover": {
+              bgcolor: "#7B1FA2",
+            },
+          }}
+        >
+          Profile
+        </Button>
+      </Link>
+    </motion.div>
+
+    {/* Find Nearby Dustbins */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.6, duration: 0.5 }}
+      className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-100 h-80 flex flex-col justify-center items-center text-center"
+    >
+      <h3 className="text-xl font-bold text-white mb-4">Locate Nearby Dustbins</h3>
+      <p className="text-sm text-white mb-6 max-w-sm">
+        Want to dispose waste responsibly? Click below to find the nearest dustbins using our map.
+      </p>
+      <Link to="/map">
+        <Button
+          variant="contained"
+          sx={{
+            borderRadius: "999px",
+            px: 4,
+            py: 1,
+            textTransform: "none",
+            bgcolor: "#9C27B0",
+            "&:hover": {
+              bgcolor: "#7B1FA2",
+            },
+          }}
+        >
+          Find Dustbins
+        </Button>
+      </Link>
+    </motion.div>
+  </div>
+</div>
+
   );
 
   const renderDriverSections = () => (
     <div className="min-h-screen flex flex-col items-center py-12 px-6">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 flex flex-col items-center border border-purple-400 hover:shadow-purple-200 w-full max-w-lg"
-      >
-        <Avatar
-          src="https://i.pravatar.cc/100" // You can replace this with user.profilePicture
-          sx={{ width: 120, height: 120, bgcolor: "#9C27B0", mb: 3 }}
-        />
-        <h2 className="text-3xl font-bold text-white mb-1">{user.name}</h2>
-        <p className="text-sm font-semibold bg-purple-700/30 text-white px-4 py-1 rounded-full mt-2 shadow-sm">
-          Driver
-        </p>
-      </motion.div>
+  {/* Profile Card */}
+  <motion.div
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5 }}
+    className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 flex flex-col items-center border border-purple-400 hover:shadow-purple-100 w-full max-w-lg"
+  >
+    <Avatar
+      src="https://i.pravatar.cc/100"
+      sx={{ width: 120, height: 120, bgcolor: "#9C27B0", mb: 3 }}
+    />
+    <h2 className="text-3xl font-bold text-white mb-1">{user.name}</h2>
+    <p className="text-sm font-semibold bg-purple-700/30 text-white px-4 py-1 rounded-full mt-2 shadow-sm">
+      Driver
+    </p>
+  </motion.div>
 
-      {/* Edit Profile Button */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center mt-6 w-full max-w-lg"
-      >
-        <Link to="/edit-profile">
-          <Button
+
+
+  {/* Feature Cards */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full max-w-5xl">
+    {/* Nearby Dustbins */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.4, duration: 0.5 }}
+      className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center min-h-[300px] flex flex-col justify-between"
+    >
+      <div>
+        <h3 className="font-bold text-xl text-white mb-4">Nearby Dustbins</h3>
+        <p className="text-sm text-white mb-4">
+          This feature allows drivers to find the nearest smart dustbins to collect waste
+          efficiently and improve area hygiene.
+        </p>
+      </div>
+      <Link to="/driver">
+        <Button
+          variant="contained"
+          sx={{
+            borderRadius: "999px",
+            px: 4,
+            py: 1,
+            textTransform: "none",
+            bgcolor: "#9C27B0",
+            "&:hover": {
+              bgcolor: "#7B1FA2",
+            },
+          }}
+        >
+          Find Garbage
+        </Button>
+      </Link>
+    </motion.div>
+
+    {/* Garbage Store Places */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.6, duration: 0.5 }}
+      className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center min-h-[300px] flex flex-col justify-between"
+    >
+      <div>
+        <h3 className="font-bold text-xl text-white mb-4">Garbage Store Places</h3>
+        <p className="text-sm text-white mb-4">
+          View official locations where collected garbage can be safely stored before
+          municipal pickup.
+        </p>
+        <ul className="text-white text-sm space-y-2">
+          <li>Store Location 1</li>
+          <li>Store Location 2</li>
+          <li>Store Location 3</li>
+        </ul>
+      </div>
+    </motion.div>
+  </div>
+
+  {/* Bottom Cards */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full max-w-5xl">
+    {/* Places Garbage Picked */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.8, duration: 0.5 }}
+      className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center min-h-[300px] flex flex-col justify-between"
+    >
+      <div>
+        <h3 className="font-bold text-xl text-white mb-4">Places Garbage Picked</h3>
+        <p className="text-sm text-white mb-4">
+          A running count of locations where you’ve actively picked up and managed garbage
+          helps track impact.
+        </p>
+      </div>
+      <p className="text-3xl text-white font-bold">5</p>
+    </motion.div>
+
+    {/* Edit Profile Again */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 1, duration: 0.5 }}
+      className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center min-h-[300px] flex flex-col justify-center"
+    >
+      <div>
+        <h3 className="text-xl text-white font-bold mb-4">Manage Your Info</h3>
+        <p className="text-sm text-white mb-4">
+          Update your personal details, profile photo, and other info from your profile page.
+        </p>
+        <Link to="/profile">
+            <Button
             variant="contained"
             sx={{
-              borderRadius: "999px",
-              px: 4,
-              py: 1,
-              textTransform: "none",
-              bgcolor: "#9C27B0",
-              "&:hover": {
-                bgcolor: "#7B1FA2",
-              },
-            }}
-          >
-            Edit Profile
-          </Button>
-        </Link>
-      </motion.div>
-
-      {/* Grid for two sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full max-w-5xl">
-        {/* Nearby Dustbins */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center"
-        >
-          <h3 className="font-bold text-xl text-white mb-4">Nearby Dustbins</h3>
-          <p className="text-sm text-white mb-4">
-            Find the nearest dustbins in your area to dispose of waste properly.
-          </p>
-          <Link to="/leaflet-map">
-            <Button
-              variant="outlined"
-              sx={{
-                borderRadius: "999px",
-                px: 4,
-                py: 1,
-                textTransform: "none",
-                color: "#fff",
-                borderColor: "#9C27B0",
-                "&:hover": {
-                  borderColor: "#fff",
-                  bgcolor: "#7B1FA230",
-                },
-              }}
-            >
-              Find Dustbins
-            </Button>
-          </Link>
-        </motion.div>
-
-        {/* Garbage Store Places */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center"
-        >
-          <h3 className="font-bold text-xl text-white mb-4">Garbage Store Places</h3>
-          <p className="text-sm text-white mb-4">
-            See the list of places where you can dispose of your collected waste.
-          </p>
-          <div className="text-white">
-            <ul className="space-y-2">
-              {/* Replace with actual data */}
-              <li className="text-sm">Store Location 1</li>
-              <li className="text-sm">Store Location 2</li>
-              <li className="text-sm">Store Location 3</li>
-            </ul>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Grid for two sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full max-w-5xl">
-        {/* Number of Places Garbage Picked */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-          className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center"
-        >
-          <h3 className="font-bold text-xl text-white mb-4">Places Garbage Picked</h3>
-          <p className="text-xl text-white mb-4">
-            See how many places you've helped by collecting garbage.
-          </p>
-          <p className="text-xl text-white">{5}</p> {/* Replace 5 with actual count */}
-        </motion.div>
-
-        {/* Edit Profile Button for User/Driver */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-          className="bg-white/10 backdrop-blur-sm shadow-xl rounded-3xl p-8 border border-purple-400 hover:shadow-purple-200 text-center"
-        >
-          <Link to="/edit-profile">
-            <Button
-              variant="contained"
-              sx={{
                 borderRadius: "999px",
                 px: 4,
                 py: 1,
                 textTransform: "none",
                 bgcolor: "#9C27B0",
                 "&:hover": {
-                  bgcolor: "#7B1FA2",
+                bgcolor: "#7B1FA2",
                 },
-              }}
+            }}
             >
-              Edit Profile
-            </Button>
-          </Link>
-        </motion.div>
+            Profile
+          </Button>
+        </Link>
       </div>
-    </div>
+    </motion.div>
+  </div>
+</div>
+
   );
 
   return (
@@ -280,7 +310,7 @@ export default function UserDashboard() {
         transition={{ duration: 0.6 }}
         className="text-center mb-14"
       >
-        <h1 className="text-5xl font-extrabold text-white drop-shadow-xl tracking-tight">Welcome to EcoTrack!</h1>
+        <h1 className="text-5xl font-extrabold text-white drop-shadow-xl tracking-tight">Welcome to DesposeHub</h1>
         <p className="text-lg mt-4 max-w-2xl mx-auto text-gray-200 font-medium leading-relaxed">
           Empower your surroundings by responsibly disposing waste and earning rewards. Be the change the world needs.
         </p>
