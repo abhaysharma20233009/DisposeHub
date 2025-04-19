@@ -4,6 +4,6 @@ import { submitContactForm } from '../controllers/contactController.js';
 
 const router = express.Router();
 
-router.post('/contact', submitContactForm);
+router.post('/contact/:uid', submitContactForm);
 
 export default router;

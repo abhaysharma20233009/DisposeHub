@@ -4,6 +4,8 @@ import nodemailer from 'nodemailer';
 import pug from 'pug';
 import { convert } from 'html-to-text';
 import catchAsync from './catchAsync.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 class Email {
   constructor(user) {
@@ -26,15 +28,15 @@ class Email {
     }
 
     // If needed, you can enable the fallback mailtrap configuration
-    // return nodemailer.createTransport({
-    //   host: 'smtp.mailtrap.io',
-    //   port: 587, // 587 is commonly used for STARTTLS
-    //   secure: false, // For STARTTLS, this should be false
-    //   auth: {
-    //     user: process.env.MAILTRAP_USER, // Ensure this is correctly set in your .env file
-    //     pass: process.env.MAILTRAP_PASS,
-    //   },
-    // });
+    return nodemailer.createTransport({
+      host: 'smtp.mailtrap.io',
+      port: 587, // 587 is commonly used for STARTTLS
+      secure: false, // For STARTTLS, this should be false
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
+      },
+    });
   }
 
   async send(template, subject) {
@@ -55,7 +57,7 @@ class Email {
         amount: 5000,
         date: '18-Apr-2025',
         referenceId: 'TXN12345678',
-        url: 'https://your-app.com/user/transactions',
+        url: 'http://localhost:5173/profile',
         subject,
       });
     }
