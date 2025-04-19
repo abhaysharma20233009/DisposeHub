@@ -26,6 +26,23 @@ const userIcon = (color = 'blue') =>
     shadowSize: [41, 41],
   });
 
+  const greenIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+    shadowUrl: markerShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
+  });
+  
+// Custom garbage icon
+const garbageIcon = new L.Icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/484/484613.png',
+  iconSize: [30, 30],
+  iconAnchor: [15, 30],
+  popupAnchor: [1, -30],
+});
+
 const RecenterMap = ({ lat, lng }) => {
   const map = useMap();
   useEffect(() => {
@@ -144,18 +161,14 @@ const CurrentLocationButton = ({ onSetLocation }) => {
   return null;
 };
 
-const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
+const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
   const [users, setUsers] = useState({});
   const [myLocation, setMyLocation] = useState(null);
   const [clickedLocation, setClickedLocation] = useState(null);
-
+ 
   useEffect(() => {
-    if (user?.role !== 'driver') return;
-
-    const socket = io('http://localhost:3000');
-
     const updateLocation = () => {
-      if (navigator.geolocation && user.role === 'driver') {
+      if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
@@ -164,6 +177,10 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
         });
       }
     };
+  
+    if (user?.role !== 'user') return;
+
+    const socket = io('http://localhost:3000');
 
     updateLocation();
     const interval = setInterval(updateLocation, 20000);
@@ -188,7 +205,6 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
     const { lat, lng } = e.latlng;
   
     try {
-      // Reverse geocoding to get the location name
       const response = await fetch(
         `https://api.openrouteservice.org/geocode/reverse?api_key=5b3ce3597851110001cf6248976fd365a133423bab235324a680ada8&point.lat=${lat}&point.lon=${lng}`
       );
@@ -196,7 +212,6 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
       const name = data.features?.[0]?.properties?.name || 'Unknown Location';
       const location = { lat, lng, name };
   
-      // Ask for confirmation to set the location
       const confirmPickup = window.confirm(
         `Are you sure you want to set "${name}" as your pickup location?`
       );
@@ -205,11 +220,9 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
         setClickedLocation(location);
         onMapClick(location);
   
-        // Save the location to the backend
-        const firebaseUID = localStorage.getItem("firebaseUID"); // Get firebaseUID from localStorage
+        const firebaseUID = localStorage.getItem("firebaseUID");
   
         if (firebaseUID) {
-          // Send the location data to the backend for saving/updating
           await fetch("http://localhost:3000/api/location/save", {
             method: "POST",
             headers: {
@@ -242,7 +255,6 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
       console.error('Reverse geocoding failed:', error);
       const location = { lat, lng, name: 'Unnamed Location' };
   
-      // Confirm and save the unnamed location
       const confirmPickup = window.confirm(
         `Are you sure you want to set this location as your pickup point?`
       );
@@ -250,7 +262,6 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
         setClickedLocation(location);
         onMapClick(location);
   
-        // Save the unnamed location to the backend
         const firebaseUID = localStorage.getItem("firebaseUID");
   
         if (firebaseUID) {
@@ -284,9 +295,8 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
     }
   };
   
-
-  if (user?.role !== 'driver' || !myLocation) {
-    return <div className="text-center mt-4">🛑 Only drivers can access the live map.</div>;
+  if (user?.role !== 'user' || !myLocation) {
+    return <div className="text-center mt-4">🛑 Only User can access the live map.</div>;
   }
 
   return (
@@ -313,6 +323,21 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
         {selectedLocation && (
           <RecenterMap lat={selectedLocation.lat} lng={selectedLocation.lng} />
         )}
+
+        {garbageDumps.data?.map((dump, index) => (
+        <Marker
+            key={`dump-${index}`}
+            position={[dump.lat, dump.long]}
+            icon={greenIcon}
+        >
+            <Popup>
+            <div>
+                <strong>{dump.name || 'Garbage Dump'}</strong>
+                {dump.address && <p>{dump.address}</p>}
+            </div>
+            </Popup>
+        </Marker>
+        ))}
 
         {Object.entries(users).map(([id, loc], index) => (
           <Marker
