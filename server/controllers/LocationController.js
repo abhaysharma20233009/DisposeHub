@@ -1,4 +1,5 @@
 import Location from "../models/locationModel.js"
+import User from "../models/userModel.js"
 
 export const saveLocation = async (req, res) => {
   try {
@@ -47,25 +48,38 @@ export const getActiveLocations = async (req, res) => {
 };
 
 export const deactivateLocation = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const location = await Location.findByIdAndUpdate(
-        id,
-        { active: false },
-        { new: true }
-      );
-  
-      if (!location) {
-        return res.status(404).json({ message: 'Location not found' });
-      }
-  
-      res.status(200).json({
-        message: 'Location deactivated successfully',
-        location,
-      });
-    } catch (err) {
-      console.error('Error deactivating location:', err);
-      res.status(500).json({ message: 'Server error' });
+  try {
+    const { id } = req.params;
+
+    const location = await Location.findByIdAndUpdate(
+      id,
+      { active: false },
+      { new: true }
+    );
+
+    // Check if location exists before accessing its fields
+    if (!location) {
+      return res.status(404).json({ message: 'Location not found' });
     }
+
+    const firebaseUID = location.firebaseUID;
+    const user = await User.findOne({ firebaseUID });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    console.log("User found:", user);
+
+    user.points += 10;
+    user.walletBalance += 2;
+    await user.save();
+
+    res.status(200).json({
+      message: 'Location deactivated successfully',
+      location,
+    });
+  } catch (err) {
+    console.error('Error deactivating location:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 };

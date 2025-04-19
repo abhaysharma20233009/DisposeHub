@@ -109,10 +109,19 @@ const DriverLeafletMap = ({ locations }) => {
   }, [location, locations]);
 
   return (
-    <div>
-      {!location && <div className="text-center mt-4">Fetching location...</div>}
-      <div id="map" style={{ height: '100vh', width: '100%' }}></div>
+    <div className="p-4 h-full">
+      {!location && (
+        <div className="text-center text-gray-600 font-medium mb-2">
+          Fetching location...
+        </div>
+      )}
+      <div
+        id="map"
+        className="rounded-2xl shadow-lg border border-gray-300"
+        style={{ height: '100%', minHeight: '92vh', width: '100%' }}
+      ></div>
     </div>
+
   );
 };
 

@@ -1,7 +1,11 @@
-import { Profiler, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import 'leaflet/dist/leaflet.css';
 import './App.css'
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+// Pages and Components
+import LeafletMap from './components/LeafletMap';
 import Login from "./pages/register/Login";
 import Signup from "./pages/register/SignUp";
 import Leaderboard from './components/leaderboard';
@@ -10,16 +14,19 @@ import Dashboard from './pages/home/Dashboard';
 import LandingPage from './pages/Landing';
 import ContactUsPage from './pages/ContactUsPage';
 import { getMe } from './apis/userApi';
+import Integrate from './pages/GeneralUser/Integrate';
 import { Wallet } from './components/Wallet';
 import UserProfile from './pages/register/profile/profile';
 import EditUserProfile from './pages/register/profile/editProfile';
 import TransactionsPage from './pages/TransactionPage';
-import Integrate from './pages/GeneralUser/Integrate';
+import Navbar from './components/websiteNavbar';
 
 function App() {
+  const location = useLocation();
+  const hideNavbar = location.pathname === "/";
   const [role, setRole] = useState(null);
   const [name, setName] = useState(null);
-  const [garbageDumps, setGarbageDumps] = useState([]);
+  const [garbageDumps, setGarbageDumps] = useState({ data: [] });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -32,10 +39,6 @@ function App() {
       }
     };
 
-    fetchUser();
-  }, []);
-
-  useEffect(() => {
     const fetchGarbageDumps = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/garbage/all');
@@ -50,11 +53,13 @@ function App() {
       }
     };
 
+    fetchUser();
     fetchGarbageDumps();
   }, []);
 
   return (
-    <Router>
+    <>
+      {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/driver" element={<DriverIntegrate role={role} name={name} garbageDumps={garbageDumps} />} />
         <Route path="/" element={<LandingPage />} />
@@ -69,8 +74,14 @@ function App() {
         <Route path="/contact" element={<ContactUsPage/>} />
         <Route path="/transactions" element={<TransactionsPage/>} />
       </Routes>
-    </Router>
+    </>
   );
 }
 
-export default App;
+export default function WrappedApp() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}

@@ -1,51 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Button, Divider } from '@mui/material';
+// components/navbarDriver.jsx
+import React from 'react';
+import { Box, Paper, Typography, Button, Divider, Tooltip } from '@mui/material';
 import { styled } from '@mui/system';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ClearIcon from '@mui/icons-material/Clear';
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 
 const Sidebar = styled(Paper)(({ theme }) => ({
-  width: '320px',
-  height: '100vh',
+  width: '100%',
+  height: '100%',
   background: 'linear-gradient(180deg, #2E3B55 0%, #1F2A40 100%)',
   color: '#fff',
   display: 'flex',
   flexDirection: 'column',
-  boxShadow: '4px 0 12px rgba(0,0,0,0.15)',
-  paddingTop: theme.spacing(4),
-  paddingLeft: theme.spacing(3),
-  paddingRight: theme.spacing(2),
+  padding: theme.spacing(3),
   overflowY: 'auto',
   borderTopRightRadius: '24px',
   borderBottomRightRadius: '24px',
 }));
 
 const LocationBox = styled(Box)(({ theme, disabled }) => ({
-  backgroundColor: disabled ? '#999' : '#fff',
-  color: disabled ? '#ccc' : '#333',
+  backgroundColor: disabled ? '#4a5568' : '#f0f4f8',
+  color: disabled ? '#cbd5e0' : '#1a202c',
   padding: theme.spacing(2),
   borderRadius: '16px',
   marginBottom: theme.spacing(2),
-  transition: 'all 0.3s ease',
-  boxShadow: '0px 4px 12px rgba(0,0,0,0.1)',
-  opacity: disabled ? 0.5 : 1,
+  boxShadow: '0 6px 12px rgba(0,0,0,0.1)',
+  opacity: disabled ? 0.6 : 1,
+  transition: '0.3s',
+  '&:hover': {
+    transform: 'scale(1.02)',
+  },
 }));
 
-const DriverNavbar = () => {
-  const [locations, setLocations] = useState([]);
-  const [passed, setPassed] = useState({});
-
-  useEffect(() => {
-    const fetchLocations = async () => {
-      try {
-        const res = await axios.get("http://localhost:3000/api/location/active-locations");
-        setLocations(res.data.locations || []);
-      } catch (err) {
-        console.error("Error fetching active locations:", err);
-      }
-    };
-
-    fetchLocations();
-  }, []);
+const DriverNavbar = ({ locations, setLocations }) => {
+  const [passed, setPassed] = React.useState({});
 
   const handlePass = (uid) => {
     setPassed((prev) => ({ ...prev, [uid]: true }));
@@ -63,7 +54,6 @@ const DriverNavbar = () => {
       await axios.patch(`http://localhost:3000/api/location/${id}/deactivate`, {
         active: false,
       });
-
       setLocations((prev) => prev.filter((loc) => loc._id !== id));
     } catch (error) {
       console.error("Failed to deactivate location:", error);
@@ -71,48 +61,123 @@ const DriverNavbar = () => {
   };
 
   return (
-    <Box className="flex h-screen bg-gradient-to-br from-gray-100 to-blue-100">
-      <Sidebar elevation={4}>
-        <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          Active Requests
-        </Typography>
+    <Sidebar
+  elevation={0}
+  sx={{
+    p: 3,
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #a855f7, #6b21a8)',
+    color: 'white',
+    borderRadius: 3,
+    overflowY: 'auto',
+  }}
+>
+  <Typography
+    variant="h4"
+    gutterBottom
+    sx={{
+      fontWeight: 'bold',
+      textAlign: 'center',
+      color: '#fff',
+      mb: 4,
+    }}
+  >
+    Active Garbage Requests
+  </Typography>
 
-        {locations.map((loc) => (
-          <LocationBox key={loc._id} disabled={passed[loc.firebaseUID]}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              Garbage
-            </Typography>
-            <Typography variant="body2">Latitude: {loc.lat}</Typography>
-            <Typography variant="body2">Longitude: {loc.long}</Typography>
-            <Divider sx={{ my: 1 }} />
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleTake(loc.firebaseUID)}
-                disabled={passed[loc.firebaseUID]}
-              >
-                Take
-              </Button>
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={() => handlePass(loc.firebaseUID)}
-              >
-                Pass
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => handleThrown(loc._id)}
-              >
-                Thrown
-              </Button>
-            </Box>
-          </LocationBox>
-        ))}
-      </Sidebar>
+  {locations.map((loc) => (
+    <Box
+      key={loc._id}
+      sx={{
+        background: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: 4,
+        p: 3,
+        mb: 3,
+        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        color: '#fff',
+        transition: 'transform 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+        },
+        opacity: passed[loc.firebaseUID] ? 0.5 : 1,
+        pointerEvents: passed[loc.firebaseUID] ? 'none' : 'auto',
+      }}
+    >
+      <Box display="flex" alignItems="center" gap={1} mb={1}>
+        <LocationOnIcon sx={{ color: '#fcd34d' }} />
+        <Typography variant="h6" fontWeight={600}>
+          {loc.name || 'Garbage'}
+        </Typography>
+      </Box>
+
+      <Typography variant="body2">Lat: {loc.lat}</Typography>
+      <Typography variant="body2" mb={1}>
+        Lng: {loc.long}
+      </Typography>
+
+      <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.2)' }} />
+
+      <Box display="flex" gap={1} flexWrap="wrap">
+        <Tooltip title="Take Task">
+          <Button
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(to right, #8b5cf6, #a855f7)',
+              color: '#fff',
+              '&:hover': {
+                background: 'linear-gradient(to right, #7c3aed, #9333ea)',
+              },
+              borderRadius: 3,
+            }}
+            startIcon={<CheckCircleIcon />}
+            onClick={() => handleTake(loc.firebaseUID)}
+          >
+            Take
+          </Button>
+        </Tooltip>
+
+        <Tooltip title="Pass Task">
+          <Button
+            variant="outlined"
+            sx={{
+              borderColor: '#e879f9',
+              color: '#f9a8d4',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+              borderRadius: 3,
+            }}
+            startIcon={<ClearIcon />}
+            onClick={() => handlePass(loc.firebaseUID)}
+          >
+            Pass
+          </Button>
+        </Tooltip>
+
+        <Tooltip title="Mark Thrown">
+          <Button
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(to right, #ec4899, #db2777)',
+              color: '#fff',
+              '&:hover': {
+                background: 'linear-gradient(to right, #be185d, #9d174d)',
+              },
+              borderRadius: 3,
+            }}
+            startIcon={<DeleteIcon />}
+            onClick={() => handleThrown(loc._id)}
+          >
+            Thrown
+          </Button>
+        </Tooltip>
+      </Box>
     </Box>
+  ))}
+</Sidebar>
+
   );
 };
 
