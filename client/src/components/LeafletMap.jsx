@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import io from 'socket.io-client';
 import L from 'leaflet';
@@ -165,6 +165,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
   const [users, setUsers] = useState({});
   const [myLocation, setMyLocation] = useState(null);
   const [clickedLocation, setClickedLocation] = useState(null);
+  const [pathPositions, setPathPositions] = useState([]);
  
   useEffect(() => {
     const updateLocation = () => {
@@ -294,6 +295,35 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
       }
     }
   };
+
+  const handleMarkerClick = async (dumpData) => {
+    if (!myLocation) return;
+  
+    try {
+      // Fetch route from OSRM API
+      const response = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${myLocation.lng},${myLocation.lat};${dumpData.long},${dumpData.lat}?overview=full&geometries=geojson`
+      );
+      
+      const data = await response.json();
+      
+      if (data.routes && data.routes[0]) {
+        const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+        setPathPositions(coords);
+      } else {
+        setPathPositions([
+          [myLocation.lat, myLocation.lng],
+          [dumpData.lat, dumpData.long],
+        ]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch route:", error);
+      setPathPositions([
+        [myLocation.lat, myLocation.lng],
+        [dumpData.lat, dumpData.long],
+      ]);
+    }
+  };
   
   if (user?.role !== 'user' || !myLocation) {
     return <div className="text-center mt-4">🛑 Only User can access the live map.</div>;
@@ -320,23 +350,41 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
+        {pathPositions.length > 0 && (
+          <Polyline
+            positions={pathPositions}
+            color="#2563eb" 
+            weight={2}      
+            opacity={1.0}   
+            lineCap="round"  
+            lineJoin="round" 
+            smoothFactor={1} 
+          />
+        )}
+
         {selectedLocation && (
           <RecenterMap lat={selectedLocation.lat} lng={selectedLocation.lng} />
         )}
 
         {garbageDumps.data?.map((dump, index) => (
         <Marker
-            key={`dump-${index}`}
-            position={[dump.lat, dump.long]}
-            icon={greenIcon}
-        >
-            <Popup>
-            <div>
-                <strong>{dump.name || 'Garbage Dump'}</strong>
-                {dump.address && <p>{dump.address}</p>}
-            </div>
-            </Popup>
-        </Marker>
+          key={`dump-${index}`}
+          position={[dump.lat, dump.long]}
+          icon={greenIcon}
+          eventHandlers={{
+              click: () => {
+                console.log(dump.lat, dump.long);
+                  handleMarkerClick(dump);
+              }
+          }}
+      >
+          <Popup>
+              <div>
+                  <strong>{dump.name || 'Garbage Dump'}</strong>
+                  {dump.address && <p>{dump.address}</p>}
+              </div>
+          </Popup>
+      </Marker>
         ))}
 
         {Object.entries(users).map(([id, loc], index) => (
