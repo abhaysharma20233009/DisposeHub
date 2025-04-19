@@ -5,6 +5,7 @@ const WithdrawalForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
     account: '',
+    amount:0,
     confirmAccount: '',
     ifsc: '',
     bank: '',
@@ -27,9 +28,12 @@ const WithdrawalForm = ({ onSubmit, onCancel }) => {
         throw new Error("User UID not found in localStorage");
       }
   
-      const response = await axios.get(
-        `${API_BASE_URL}/email/send-email/${firebaseUID.trim()}`
+      const response = await axios.post(
+        `${API_BASE_URL}/wallet/withdraw/${firebaseUID.trim()}`,
+        formData, // ✅ sending form data here
+        { headers: { 'Content-Type': 'application/json' } }
       );
+  
       console.log(response);
      // setBalance(response.data.user.walletBalance);
     } catch (err) {
@@ -50,6 +54,16 @@ const WithdrawalForm = ({ onSubmit, onCancel }) => {
         required
         style={styles.input}
       />
+            <input
+        type="number"
+        name="amount"
+        placeholder="Amount"
+        value={formData.amount}
+        onChange={handleChange}
+        required
+        style={styles.input}
+      />
+      
       <input
         type="text"
         name="account"

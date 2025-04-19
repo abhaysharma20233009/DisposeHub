@@ -6,7 +6,7 @@ import walletController from '../controllers/walletController.js';
 router.post('/reward', walletController.rewardUser);
 
 // User withdraws
-router.post('/withdraw', walletController.withdraw);
+router.post('/withdraw/:uid', walletController.withdraw);
 
 export default router;
 

@@ -9,6 +9,7 @@ import RewardDistributionRouter from './routes/adminRoutes.js';
 import walletRoutes from './routes/walletRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js'
 dotenv.config({ path: './.env' });
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -29,6 +30,7 @@ app.use('/api/v1/rewards', RewardDistributionRouter);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api', contactRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 // Export app
 export default app;

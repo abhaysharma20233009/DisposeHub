@@ -8,7 +8,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 class Email {
-  constructor(user) {
+  constructor(user, amount) {
+    this.amount=amount,
     this.to = user.email;
     this.firstName = user.name.split(' ')[0];
     this.from = `${process.env.EMAIL_FROM}`;
@@ -54,9 +55,9 @@ class Email {
     } else {
       html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
         firstName: this.firstName,
-        amount: 5000,
-        date: '18-Apr-2025',
-        referenceId: 'TXN12345678',
+        amount: this.amount,
+        date: new Date().toLocaleString(),
+        referenceId: 'TXN2025041912345678',
         url: 'http://localhost:5173/profile',
         subject,
       });

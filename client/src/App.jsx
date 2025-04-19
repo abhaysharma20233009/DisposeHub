@@ -19,6 +19,7 @@ import { Wallet } from './components/Wallet';
 
 import UserProfile from './pages/register/profile/profile';
 import EditUserProfile from './pages/register/profile/editProfile';
+import TransactionsPage from './pages/TransactionPage';
 
 function App() {
 
@@ -38,6 +39,7 @@ function App() {
         <Route path="/profile" element={ <UserProfile />} />
         <Route path="/withdrawl-money" element={<Wallet/>}/>
         <Route path="/contact" element={<ContactUsPage/>} />
+        <Route path="/transactions" element={<TransactionsPage/>} />
       </Routes>
     </Router>
 
