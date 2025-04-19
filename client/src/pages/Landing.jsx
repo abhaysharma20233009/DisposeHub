@@ -8,22 +8,25 @@ import recyclingInfoImage from '../assets/education.jpg';
 import garbageCollectionImage from '../assets/garbage_van.jpg';
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-
+import { useLocation } from "react-router-dom";
 
 
 export default function LandingPage() {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+    const location = useLocation();
+
     useEffect(() => {
-        // Example: checking token existence
-        const token = localStorage.getItem("token");
-        setIsLoggedIn(!!token);
-    }, []);
+      const token = localStorage.getItem("token");
+      setIsLoggedIn(!token);
+    }, [location]);
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-800 text-white flex flex-col items-center justify-center p-8">
       {/* Header Section */}
+
+      
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -177,27 +180,26 @@ export default function LandingPage() {
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap gap-6 justify-center mb-20">
-        {!isLoggedIn ? (
-            <>
-            <Link to="/login">
-                <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-10 py-4 rounded-full text-xl font-semibold shadow-xl transition duration-300 ease-in-out hover:scale-110 hover:shadow-yellow-300/50">
-                Login
+            {!isLoggedIn ? (
+                <>
+                <Link to="/login">
+                    <button className="bg-yellow-600 text-white h-16 px-6 py-2 rounded-full shadow-md font-bold hover:bg-yellow-800 transition duration-300">
+                    Login
+                    </button>
+                </Link>
+                <Link to="/signup">
+                    <button className="bg-green-600 text-white h-16 px-6 py-2 rounded-full shadow-md font-bold hover:bg-green-800 transition duration-300">
+                    Sign Up
+                    </button>
+                </Link>
+                </>
+            ) : (
+                <Link to="/dashboard">
+                <button className="bg-purple-600 text-white h-16 px-8 py-2 rounded-full shadow-lg font-bold hover:bg-purple-700 transition duration-300">
+                    Go to Dashboard
                 </button>
-            </Link>
-
-            <Link to="/signup">
-                <button className="bg-white hover:bg-gray-100 text-purple-800 border-2 border-yellow-400 px-10 py-4 rounded-full text-xl font-semibold shadow-xl transition duration-300 ease-in-out hover:scale-110 hover:border-yellow-500">
-                Sign Up
-                </button>
-            </Link>
-            </>
-        ) : (
-            <Link to="/dashboard">
-            <button className="bg-purple-700 hover:bg-purple-800 text-white px-10 py-4 rounded-full text-xl font-semibold shadow-xl transition duration-300 ease-in-out hover:scale-110 hover:shadow-purple-500/50">
-                Go to Dashboard
-            </button>
-            </Link>
-        )}
+                </Link>
+            )}
         </div>
 
         {/* Testimonials */}
