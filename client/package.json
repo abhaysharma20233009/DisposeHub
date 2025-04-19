@@ -12,16 +12,13 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-
     "@googlemaps/polyline-codec": "^1.0.28",
     "@here/harp-utils": "^0.28.0",
     "@liveblocks/client": "^2.22.3",
     "@liveblocks/react": "^2.22.3",
-    "@mapbox/polyline": "^1.2.1",
-
-  
     "@lottiefiles/dotlottie-react": "^0.13.3",
-
+    "@lottiefiles/react-lottie-player": "^3.6.0",
+    "@mapbox/polyline": "^1.2.1",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@reduxjs/toolkit": "^2.6.1",
@@ -32,17 +29,12 @@
     "framer-motion": "^12.7.0",
     "konva": "^9.3.20",
     "leaflet": "^1.9.4",
-
     "leaflet-routing-machine": "^3.2.12",
     "lodash.debounce": "^4.0.8",
     "lottie-react": "^2.4.1",
     "openrouteservice-js": "^0.4.1",
-    "react": "^19.0.0",
-
-
     "peer": "^1.0.2",
-    
-
+    "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-konva": "^19.0.3",

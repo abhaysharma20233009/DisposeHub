@@ -41,6 +41,5 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/transactions', transactionRoutes);
-
 // Export app
 export default app;

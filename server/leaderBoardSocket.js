@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import User from './models/userModel.js'; // Ensure file extension is included
-
+import Notification from './models/notificationModel.js'
 const initLeaderboardSocket = (io) => {
   io.on('connection', async (socket) => {
     console.log('New client connected');
@@ -14,20 +14,39 @@ const initLeaderboardSocket = (io) => {
       console.error(err);
     }
 
-    socket.on('updatePoints', async (userId, points) => {
-      try {
-        const user = await User.findById(userId);
-        if (user) {
-          user.points += points;
-          await user.save();
-
-          const updatedLeaderboard = await User.find().sort({ points: -1 }).limit(10);
-          io.emit('leaderboard', updatedLeaderboard);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    });
+   
+       // Fetch Unread Notifications
+          socket.on("fetchNotifications", async ({firebaseUID}) => {
+            try {
+              console.log("firebaseUID"+firebaseUID);
+              const user=await User.findOne({firebaseUID});
+              
+              const notifications = await Notification.find({
+                receiver: user._id,
+                isRead: false,
+              });
+              console.log(user+"usersssssss"+notifications);
+              socket.emit("allNotifications", notifications);
+            } catch (error) {
+              console.error("Error fetching notifications:", error);
+            }
+          });
+      
+     // Mark Notifications as Read
+        socket.on("markNotificationsAsRead", async ({firebaseUID}) => {
+          try {
+            console.log("firebaseUID"+firebaseUID);
+              const user=await User.findOne({firebaseUID});
+            await Notification.updateMany(
+              { receiver: user._id, isRead: false },
+              { isRead: true }
+            );
+            socket.emit("notificationsMarkedAsRead");
+          } catch (error) {
+            console.error("Error marking notifications as read:", error);
+          }
+        });
+    
 
     socket.on('disconnect', () => {
       console.log('Client disconnected');

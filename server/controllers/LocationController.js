@@ -1,6 +1,7 @@
-import Location from "../models/locationModel.js"
-import User from "../models/userModel.js"
-
+import { urlencoded } from "express";
+import Location from "../models/locationModel.js";
+import User from "../models/userModel.js";
+import Notification from "../models/notificationModel.js";
 export const saveLocation = async (req, res) => {
   try {
     const { firebaseUID, lat, long, active } = req.body;
@@ -73,7 +74,19 @@ export const deactivateLocation = async (req, res) => {
     user.points += 10;
     user.walletBalance += 2;
     await user.save();
+     // Create notification
+        
+        const content = `Your walletBalance updated to ${user.walletBalance}`;
+    
+        const newNotification = new Notification({
+          receiver: user._id,
+          messagePreview: content,
+          isRead: false,
+        });
+        await newNotification.save();
 
+      
+    
     res.status(200).json({
       message: 'Location deactivated successfully',
       location,

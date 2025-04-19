@@ -148,22 +148,24 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
   const [users, setUsers] = useState({});
   const [myLocation, setMyLocation] = useState(null);
   const [clickedLocation, setClickedLocation] = useState(null);
-
+ 
   useEffect(() => {
-    if (user?.role !== 'driver') return;
+    
+    const updateLocation = () => {
+        if (navigator.geolocation ) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            setMyLocation({ lat, lng });
+            socket.emit('location', { lat, lng });
+          });
+        }
+      };
+  
+    console.log(user+"User in Map", user);
+    if (user?.role !== 'user') return;
 
     const socket = io('http://localhost:3000');
-
-    const updateLocation = () => {
-      if (navigator.geolocation && user.role === 'driver') {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          setMyLocation({ lat, lng });
-          socket.emit('location', { lat, lng });
-        });
-      }
-    };
 
     updateLocation();
     const interval = setInterval(updateLocation, 20000);
@@ -285,8 +287,8 @@ const LeafletMap = ({ user, selectedLocation, onMapClick }) => {
   };
   
 
-  if (user?.role !== 'driver' || !myLocation) {
-    return <div className="text-center mt-4">🛑 Only drivers can access the live map.</div>;
+  if (user?.role !== 'user' || !myLocation) {
+    return <div className="text-center mt-4">🛑 Only User can access the live map.</div>;
   }
 
   return (

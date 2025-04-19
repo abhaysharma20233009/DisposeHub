@@ -4,7 +4,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 import fs from 'fs';
 import Email from "../utils/email.js";
-
+import Notification from "../models/notificationModel.js"
 /**
  * Add a new user to the database after Firebase Signup
  * Expected Request Body: { firebaseUID, name, username, email }
@@ -197,8 +197,8 @@ export const getUserByUID = async (req, res) => {
       //console.log(`Looking for user with UID: [${uid}]`);
   
       const user = await User.findOne({ firebaseUID: uid.trim() });
-     // console.log("Found userId:", user);
-  
+            
+            
       if (!user) {
         return res.status(404).json({ success: false, message: "User not found" });
       }
