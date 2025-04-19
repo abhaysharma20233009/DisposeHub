@@ -1,7 +1,18 @@
+<<<<<<< HEAD
 import { Profiler, useEffect, useState } from 'react'
 import 'leaflet/dist/leaflet.css';
 import './App.css'
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+=======
+import { useEffect, useState } from 'react'
+import { useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import 'leaflet/dist/leaflet.css';
+import './App.css'
+
+// Pages and Components
+import LeafletMap from './components/LeafletMap';
+>>>>>>> fc55336506d68588c9a54561f6f27036039c1df7
 import Login from "./pages/register/Login";
 import Signup from "./pages/register/SignUp";
 import Leaderboard from './components/leaderboard';
@@ -10,10 +21,15 @@ import Dashboard from './pages/home/Dashboard';
 import LandingPage from './pages/Landing';
 import ContactUsPage from './pages/ContactUsPage';
 import { getMe } from './apis/userApi';
+<<<<<<< HEAD
+=======
+import Integrate from './pages/GeneralUser/Integrate';
+>>>>>>> fc55336506d68588c9a54561f6f27036039c1df7
 import { Wallet } from './components/Wallet';
 import UserProfile from './pages/register/profile/profile';
 import EditUserProfile from './pages/register/profile/editProfile';
 import TransactionsPage from './pages/TransactionPage';
+<<<<<<< HEAD
 import Integrate from './pages/GeneralUser/Integrate';
 import { useLocation } from "react-router-dom";
 import Navbar from './components/websiteNavbar';
@@ -42,12 +58,38 @@ function App() {
 
   // Fetch garbage dumps on component mount
   useEffect(() => {
+=======
+import Navbar from './components/websiteNavbar';
+
+function App() {
+  const location = useLocation();
+  const hideNavbar = location.pathname === "/";
+  const [role, setRole] = useState(null);
+  const [name, setName] = useState(null);
+  const [garbageDumps, setGarbageDumps] = useState({ data: [] });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await getMe();
+        setRole(user.role);
+        setName(user.name);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+>>>>>>> fc55336506d68588c9a54561f6f27036039c1df7
     const fetchGarbageDumps = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/garbage/all');
         const data = await response.json();
         if (data.success) {
+<<<<<<< HEAD
           setGarbageDumps(data.dumps);
+=======
+          setGarbageDumps(data);
+>>>>>>> fc55336506d68588c9a54561f6f27036039c1df7
         } else {
           console.error("Failed to fetch garbage dumps:", data.message);
         }
@@ -56,6 +98,10 @@ function App() {
       }
     };
 
+<<<<<<< HEAD
+=======
+    fetchUser();
+>>>>>>> fc55336506d68588c9a54561f6f27036039c1df7
     fetchGarbageDumps();
   }, []);
 

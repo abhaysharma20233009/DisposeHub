@@ -45,7 +45,7 @@ const NavbarTitle = styled(Typography)(({ theme }) => ({
   color: '#ffffff',
 }));
 
-function Integrate({ role, name }) {
+function Integrate({ role, name, garbageDumps }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   return (
@@ -58,6 +58,7 @@ function Integrate({ role, name }) {
           user={{ role, name }}
           selectedLocation={selectedLocation}
           onMapClick={setSelectedLocation}
+          garbageDumps={garbageDumps}
         />
       </MapContainer>
     </Box>
