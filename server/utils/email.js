@@ -6,9 +6,9 @@ import { convert } from 'html-to-text';
 import catchAsync from './catchAsync.js';
 
 class Email {
-  constructor() {
-    this.to = 'anshul.20233065@mnnit.ac.in';
-    this.firstName = "Anuj";
+  constructor(user) {
+    this.to = user.email;
+    this.firstName = user.name.split(' ')[0];
     this.from = `${process.env.EMAIL_FROM}`;
   }
 

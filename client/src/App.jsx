@@ -8,7 +8,7 @@ import Login from "./pages/register/Login";
 import Signup from "./pages/register/SignUp";
 import Leaderboard from './components/leaderboard';
 import ContactUsPage from './pages/ContactUsPage';
-import { Wallet } from '@mui/icons-material';
+import { Wallet } from './components/Wallet';
 
 
 

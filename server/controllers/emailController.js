@@ -5,7 +5,11 @@ import AppError from '../utils/appError.js';
 export const sendEmail = catchAsync(async (req, res, next) => {
   try {
     // await new Email().sendWelcome();
-    await new Email().sendOnAmountTransfer();
+    const firebaseUID = localStorage.getItem('firebaseUID'); // or get from context
+    const res = await fetch(`http://localhost:3000/api/user/${firebaseUID}`);
+    const user = await res.json();
+   
+    await new Email(user).sendOnAmountTransfer();
 
     res.status(200).json({
       status: 'success',
