@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WithdrawalForm from './WithdrawalForm';
 
-const Wallet = () => {
+export const Wallet = () => {
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [balance, setBalance] = useState(null);
 
   const handleWithdrawClick = () => {
     setIsFormVisible(true);
@@ -17,11 +18,31 @@ const Wallet = () => {
     setIsFormVisible(false);
   };
 
+  // ✅ Fetch wallet balance
+  useEffect(() => {
+    const fetchWalletBalance = async () => {
+      try {
+        const firebaseUID = localStorage.getItem('firebaseUID'); // or get from context
+        const res = await fetch(`http://localhost:3000/api/user/${firebaseUID}`);
+        const data = await res.json();
+        setBalance(data.walletBalance);
+      } catch (err) {
+        console.error("Failed to fetch wallet balance", err);
+      }
+    };
+
+    fetchWalletBalance();
+  }, []);
+
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.heading}>💰 Your Wallet</h2>
-        <p style={styles.balance}>Balance: <span style={styles.amount}>$1000</span></p>
+        <p style={styles.balance}>
+          Balance: <span style={styles.amount}>
+            {balance !== null ? `$${balance}` : 'Loading...'}
+          </span>
+        </p>
         <button style={styles.button} onClick={handleWithdrawClick}>Withdraw Money</button>
 
         {isFormVisible && (

@@ -13,14 +13,13 @@ const adminController = {
           user.walletBalance += amount;
           user.points = 0;
           await user.save({ validateBeforeSave: false });
-          console.log(`Updated user ${user._id}`);
-  
+         
           await Transaction.create({
             user: user._id,
             amount,
             type: 'reward',
           });
-          console.log(`Transaction created for user ${user._id}`);
+          // console.log(`Transaction created for user ${user._id}`);
         }
       } catch (err) {
         console.error(`Error processing user ${user._id}:`, err);

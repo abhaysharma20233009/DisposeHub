@@ -7,7 +7,7 @@ import cloudinary from 'cloudinary';
 const app = express();
 import RewardDistributionRouter from './routes/adminRoutes.js';
 import walletRoutes from './routes/walletRoutes.js';
-import withdrawalRoute from './routes/withdrawalRoute.js';
+import emailRoutes from './routes/emailRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 dotenv.config({ path: './.env' });
 cloudinary.config({
@@ -27,7 +27,7 @@ app.use(cors({
 app.use('/api/users', userRoutes);
 app.use('/api/v1/rewards', RewardDistributionRouter);
 app.use('/api/wallet', walletRoutes);
-app.use('/api/withdrawal', withdrawalRoute);
+app.use('/api/email', emailRoutes);
 app.use('/api', contactRoutes);
 
 // Export app

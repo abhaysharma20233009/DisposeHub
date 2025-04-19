@@ -39,3 +39,7 @@ Thumbs.db
 *.bak
 *.tmp
 
+package-lock.json
+
+
+
