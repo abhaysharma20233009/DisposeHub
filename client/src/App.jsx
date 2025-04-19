@@ -19,9 +19,10 @@ import { Wallet } from './components/Wallet';
 import UserProfile from './pages/register/profile/profile';
 import EditUserProfile from './pages/register/profile/editProfile';
 import TransactionsPage from './pages/TransactionPage';
-import Navbar from './components/Navbar'; // ← import the Navbar
+import Navbar from './components/websiteNavbar'; // ← import the Navbar
 import './App.css';
 import 'leaflet/dist/leaflet.css';
+import Leaderboard from "./components/leaderboard";
 
 function App() {
 

@@ -19,8 +19,7 @@
     "@liveblocks/react": "^2.22.3",
     "@mapbox/polyline": "^1.2.1",
 
-    "@liveblocks/client": "^2.22.3",
-    "@liveblocks/react": "^2.22.3",
+  
     "@lottiefiles/dotlottie-react": "^0.13.3",
 
     "@mui/icons-material": "^7.0.2",
@@ -40,11 +39,9 @@
     "openrouteservice-js": "^0.4.1",
     "react": "^19.0.0",
 
-    "lodash.debounce": "^4.0.8",
-    "lottie-react": "^2.4.1",
-    "openrouteservice-js": "^0.4.1",
+
     "peer": "^1.0.2",
-    "react": "^19.1.0",
+    
 
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
