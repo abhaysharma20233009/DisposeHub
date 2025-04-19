@@ -18,6 +18,7 @@ client/out/
 server/package-lock.json
 # Environment & Configuration Files
 server/.env
+server/config.env
 client/.env
 .env.local
 .env.development.local
