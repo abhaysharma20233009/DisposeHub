@@ -18,8 +18,8 @@ export default function LandingPage() {
     const location = useLocation();
 
     useEffect(() => {
-      const token = localStorage.getItem("token");
-      setIsLoggedIn(!token);
+      const token = localStorage.getItem("firebaseUID");
+      setIsLoggedIn(token);
     }, [location]);
 
   return (
