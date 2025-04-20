@@ -22,3 +22,4 @@ client/package-lock.json
 *.njsproj
 *.sln
 *.sw?
+/package-lock.json
