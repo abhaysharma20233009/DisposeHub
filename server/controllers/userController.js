@@ -92,6 +92,7 @@ export const register = async (req, res) => {
   
       // Firebase-based signup
       if (firebaseUID) {
+        console.log("from userController yes firebaseUID is presesnt ");
         if (!name || !email) {
           return res.status(400).json({ success: false, message: "Missing required fields" });
         }

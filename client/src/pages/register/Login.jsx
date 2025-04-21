@@ -55,8 +55,7 @@ const LoginPage = () => {
           avatar: userCredential.avatar || "/default-avatar.png",
         })
       );
-      console.log("User logged in:", userCredential);
-      console.log("Login successful!");
+      
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error.message);

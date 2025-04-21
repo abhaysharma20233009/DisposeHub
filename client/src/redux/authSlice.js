@@ -10,11 +10,9 @@ const authSlice = createSlice({
   reducers: {
     loginSuccess: (state, action) => {
       state.user = action.payload;
-      localStorage.setItem("user", JSON.stringify(action.payload)); // Persist user
     },
     logoutUser: (state) => {
       state.user = null;
-      localStorage.removeItem("user"); // Remove on logout
     },
   },
 });
