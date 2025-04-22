@@ -71,7 +71,7 @@ function App() {
         <Route path="/editProfile" element={<EditUserProfile />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/withdrawl-money" element={<Wallet />} />
-        <Route path="/contact" element={<ContactUsPage />} />
+        <Route path="/contact-us" element={<ContactUsPage />} />
         <Route path="/transactions" element={<TransactionsPage />} />
       </Routes>
     </>

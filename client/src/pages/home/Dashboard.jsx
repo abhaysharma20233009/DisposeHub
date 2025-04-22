@@ -165,6 +165,29 @@ export default function UserDashboard() {
       </Link>
     </motion.div>
   </div>
+
+  {/* Contact Us Button */}
+  <div className="mt-8 flex justify-center">
+    <Link to="/contact-us">
+      <Button
+        variant="outlined"
+        sx={{
+          borderRadius: "999px",
+          px: 4,
+          py: 1,
+          textTransform: "none",
+          borderColor: "#9C27B0",
+          color: "#9C27B0",
+          "&:hover": {
+            borderColor: "#7B1FA2",
+            color: "#7B1FA2",
+          },
+        }}
+      >
+        Contact Us
+      </Button>
+    </Link>
+  </div>
 </div>
 
   );
@@ -305,6 +328,29 @@ export default function UserDashboard() {
         </Link>
       </div>
     </motion.div>
+  </div>
+
+  {/* Contact Us Button */}
+  <div className="mt-8 flex justify-center">
+    <Link to="/contact-us">
+      <Button
+        variant="outlined"
+        sx={{
+          borderRadius: "999px",
+          px: 4,
+          py: 1,
+          textTransform: "none",
+          borderColor: "#9C27B0",
+          color: "#9C27B0",
+          "&:hover": {
+            borderColor: "#7B1FA2",
+            color: "#7B1FA2",
+          },
+        }}
+      >
+        Contact Us
+      </Button>
+    </Link>
   </div>
 </div>
 
