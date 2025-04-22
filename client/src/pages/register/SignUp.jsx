@@ -73,6 +73,7 @@ const SignupPage = () => {
           email: input.email,
           role: input.role,
           vehicleNumber: input.role === "driver" ? input.vehicleNumber : undefined,
+          avatar: userCredential.avatar || "/default-avatar.png",
         })
       );
 

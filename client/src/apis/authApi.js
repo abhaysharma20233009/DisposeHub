@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 export const signupUser = async (userData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/users/auth/signup`, userData);
     
-    const firebaseUID = response.data?.firebaseUID;
+    const firebaseUID = response.data?.user.uid;
     if (firebaseUID) {
       localStorage.setItem('firebaseUID', firebaseUID); // ✅ Save UID in localStorage
     }

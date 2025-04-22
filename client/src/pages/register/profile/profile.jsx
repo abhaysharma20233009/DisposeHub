@@ -213,7 +213,7 @@ export default function UserProfile() {
                 variant="h5"
                 component="div"
               >
-                ${user.walletBalance?.toFixed(2) ?? "0.00"}
+                ₹{user.walletBalance?.toFixed(2) ?? "0.00"}
               </Typography>
             </CardContent>
           </Card>
