@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-const WithdrawalForm = ({ onSubmit, onCancel, setBalance }) => {
+
+const WithdrawalForm = ({ onSubmit, onCancel, setBalance, setWithdrawRequest }) => {
   const [formData, setFormData] = useState({
     name: '',
     account: '',
-    amount:0,
     confirmAccount: '',
     ifsc: '',
     bank: '',
+    amount: 0,
   });
 
-  const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleChange = (e) =>
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,125 +22,64 @@ const WithdrawalForm = ({ onSubmit, onCancel, setBalance }) => {
       alert('Account numbers do not match!');
       return;
     }
-    try {
-      const firebaseUID = localStorage.getItem("firebaseUID"); 
-    
-      if (!firebaseUID) {
-        throw new Error("User UID not found in localStorage");
-      }
-  
-      const response = await axios.post(
-        `${API_BASE_URL}/wallet/withdraw/${firebaseUID.trim()}`,
-        formData, // ✅ sending form data here
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-
-     setBalance(response.data.walletBalance);
-    } catch (err) {
-      console.error("Failed to fetch wallet balance", err);
-    }
-
     onSubmit(formData);
+    try {
+      const firebaseUID = localStorage.getItem("firebaseUID");
+      if (!firebaseUID) throw new Error("User UID not found");
+
+      const res = await axios.post(`${API_BASE_URL}/wallet/withdraw/${firebaseUID.trim()}`, formData, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      setBalance(res.data.walletBalance );
+      setWithdrawRequest(false);
+    } catch (err) {
+      console.error("Failed to submit withdrawal", err);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
-      <input
-        type="text"
-        name="name"
-        placeholder="Account Holder Name"
-        value={formData.name}
-        onChange={handleChange}
-        required
-        style={styles.input}
-      />
-            <input
-        type="number"
-        name="amount"
-        placeholder="Amount"
-        value={formData.amount}
-        onChange={handleChange}
-        required
-        style={styles.input}
-      />
-      
-      <input
-        type="text"
-        name="account"
-        placeholder="Account Number"
-        value={formData.account}
-        onChange={handleChange}
-        required
-        style={styles.input}
-      />
-      <input
-        type="text"
-        name="confirmAccount"
-        placeholder="Confirm Account Number"
-        value={formData.confirmAccount}
-        onChange={handleChange}
-        required
-        style={styles.input}
-      />
-      <input
-        type="text"
-        name="ifsc"
-        placeholder="IFSC Code"
-        value={formData.ifsc}
-        onChange={handleChange}
-        required
-        style={styles.input}
-      />
-      <input
-        type="text"
-        name="bank"
-        placeholder="Bank Name"
-        value={formData.bank}
-        onChange={handleChange}
-        required
-        style={styles.input}
-      />
-      <div style={styles.buttons}>
-        <button type="submit" style={styles.submit}>Submit</button>
-        <button type="button" style={styles.cancel} onClick={onCancel}>Cancel</button>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-black/50 backdrop-blur-md p-6 rounded-2xl space-y-4 shadow-xl"
+    >
+      {[
+        { name: 'name', placeholder: 'Account Holder Name', type: 'text' },
+        { name: 'amount', placeholder: 'Amount', type: 'number' },
+        { name: 'account', placeholder: 'Account Number', type: 'text' },
+        { name: 'confirmAccount', placeholder: 'Confirm Account Number', type: 'text' },
+        { name: 'ifsc', placeholder: 'IFSC Code', type: 'text' },
+        { name: 'bank', placeholder: 'Bank Name', type: 'text' },
+      ].map(({ name, placeholder, type }) => (
+        <input
+          key={name}
+          type={type}
+          name={name}
+          placeholder={placeholder}
+          value={formData[name]}
+          onChange={handleChange}
+          required
+          className="w-full p-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        />
+      ))}
+
+      <div className="flex justify-between mt-4">
+        <button
+          type="submit"
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold"
+        >
+          Submit
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold"
+        >
+          Cancel
+        </button>
       </div>
     </form>
   );
-};
-
-const styles = {
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.8rem',
-  },
-  input: {
-    padding: '0.6rem',
-    fontSize: '1rem',
-    borderRadius: '8px',
-    border: '1px solid #ccc',
-  },
-  buttons: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: '1rem',
-  },
-  submit: {
-    backgroundColor: '#28a745',
-    color: 'white',
-    padding: '0.5rem 1rem',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-  },
-  cancel: {
-    backgroundColor: '#dc3545',
-    color: 'white',
-    padding: '0.5rem 1rem',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-  }
 };
 
 export default WithdrawalForm;
