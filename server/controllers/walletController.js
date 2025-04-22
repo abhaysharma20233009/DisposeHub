@@ -54,6 +54,7 @@ const walletController = {
   
     res.status(200).json({
       status: 'success',
+      walletBalance: user.walletBalance,
       message: 'Amount Transfer message sent to User!',
     });
   }

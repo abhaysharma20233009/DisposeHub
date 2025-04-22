@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-const WithdrawalForm = ({ onSubmit, onCancel }) => {
+const WithdrawalForm = ({ onSubmit, onCancel, setBalance }) => {
   const [formData, setFormData] = useState({
     name: '',
     account: '',
@@ -33,9 +33,8 @@ const WithdrawalForm = ({ onSubmit, onCancel }) => {
         formData, // ✅ sending form data here
         { headers: { 'Content-Type': 'application/json' } }
       );
-  
-      console.log(response);
-     // setBalance(response.data.user.walletBalance);
+
+     setBalance(response.data.walletBalance);
     } catch (err) {
       console.error("Failed to fetch wallet balance", err);
     }

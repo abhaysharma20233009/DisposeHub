@@ -12,7 +12,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000
   };
 
   const handleFormSubmit = (formData) => {
-    console.log('Withdrawal Request:', formData);
+  
     setIsFormVisible(false);
   };
 
@@ -55,11 +55,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000
             {balance !== null ? `₹${balance}` : 'Loading...'}
           </span>
         </p>
-{balance>=500 &&        <button style={styles.button} onClick={handleWithdrawClick}>Withdraw Money</button>}
+{balance>0 &&        <button style={styles.button} onClick={handleWithdrawClick}>Withdraw Money</button>}
 
         {isFormVisible && (
           <div style={styles.formContainer}>
-            <WithdrawalForm onSubmit={handleFormSubmit} onCancel={handleCancel} />
+            <WithdrawalForm onSubmit={handleFormSubmit} onCancel={handleCancel} setBalance={setBalance}/>
           </div>
         )}
       </div>
