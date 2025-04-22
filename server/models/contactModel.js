@@ -10,6 +10,9 @@ const contactSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Email is required']
   },
+  role: {
+    type: String,
+  },
   message: {
     type: String,
     required: [true, 'Message cannot be empty']

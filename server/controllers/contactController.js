@@ -5,11 +5,9 @@ import User from '../models/userModel.js';
 export const submitContactForm = async (req, res, next) => {
   try {
     const {uid}=req.params;
-    console.log(uid+"uidddd");
     const user=await User.findOne({firebaseUID:uid.trim()});
     
     const { message } = req.body;
-    console.log("user"+user.email+user.name+message);
     if ( !message) {
       return res.status(400).json({
         status: 'fail',
@@ -23,7 +21,7 @@ export const submitContactForm = async (req, res, next) => {
       })
     }
 
-    const newContact = await Contact.create({ name:user.name, email:user.email, message });
+    const newContact = await Contact.create({ name:user.name, email:user.email, role: user.role, message, });
 
     res.status(201).json({
       status: 'success',
