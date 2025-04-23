@@ -39,7 +39,7 @@ app.use('/api/garbage', garbageRoutes);
 app.use('/api/v1/rewards', RewardDistributionRouter);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/email', emailRoutes);
-app.use('/api', contactRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api/transactions', transactionRoutes);
 // Export app
 export default app;

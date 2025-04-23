@@ -12,7 +12,20 @@ const transactionController = {
     } catch (err) {
       res.status(500).json({ error: 'Server error' });
     }
+  },
+
+  getAllTransactions: async (req, res) => {
+    try {
+      const transactions = await Transaction.find({ user: { $ne: null } })
+        .populate('user', 'name email') // get name and email from User
+        .sort({ date: -1 }); // latest first
+      res.status(200).json({ transactions });
+    } catch (err) {
+      res.status(500).json({ message: "Error fetching transactions" });
+    }
   }
 } 
+
+
 
 export default transactionController;
