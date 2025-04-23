@@ -136,7 +136,7 @@ export default function AdminDashboard() {
         <AdminCard
           title="Transaction History"
           description="Track every wallet transaction and user activity."
-          link="/transactions"
+          link="/admin/transactions"
           buttonLabel="Transactions"
           delay={0.2}
         />

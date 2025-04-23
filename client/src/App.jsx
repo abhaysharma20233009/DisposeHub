@@ -21,6 +21,7 @@ import { getMe } from './apis/userApi';
 import Navbar from './components/websiteNavbar';
 import AdminDashboard from './pages/adminPages/adminDashboard';
 import ContactMessages from './pages/contactMessages';
+import AdminTransactions from './pages/AdminTransactions';
 
 
 function App() {
@@ -78,6 +79,7 @@ function App() {
         <Route path="/transactions" element={<TransactionsPage />} />
         <Route path="/admin-dashboard" element = {<AdminDashboard />} />
         <Route path="/admin/contact-messages" element={<ContactMessages />} />
+        <Route path="/admin/transactions" element={<AdminTransactions />} />
       </Routes>
     </>
   );
