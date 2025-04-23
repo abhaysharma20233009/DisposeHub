@@ -5,10 +5,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import { FaBell } from "react-icons/fa";
 import NotificationDropdown from "./Notification";
-const Navbar = () => {
+const Navbar = ({role}) => {
   const navigate = useNavigate();
-   const [isBellOpen, setIsBellOpen] = useState(false);
-   const [data, setData] = useState(0);
+  const [isBellOpen, setIsBellOpen] = useState(false);
+  const [data, setData] = useState(0);
   const toggleNotificationBell = () => setIsBellOpen(!isBellOpen);
   const handleLogout = () => {
     // Clear any authentication tokens or user data here
@@ -31,7 +31,7 @@ const Navbar = () => {
             Home
         </Link>
         <Link
-            to="/dashboard"
+            to={role === 'admin' ? "/admin-dashboard" : "/dashboard"}
             className="inline-block bg-zinc-500 text-white font-medium px-5 py-2 rounded-lg shadow-md hover:from-purple-600 hover:to-fuchsia-700 transition-all duration-300"
         >
             Dashboard
