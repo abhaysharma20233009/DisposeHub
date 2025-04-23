@@ -20,12 +20,30 @@ import GoogleIcon from "@mui/icons-material/Google"; //Import Google Icon
 import FacebookIcon from "@mui/icons-material/Facebook"; // Import Facebook Icon
 import { signInWithPopup } from "firebase/auth";
 import { googleProvider } from "../../firebase/config";
+import { getMe } from "../../apis/userApi";
 
 const LoginPage = () => {
   const [input, setInput] = useState({ email: "", password: "" });
+  const [role, setRole] = useState("");
   const [error, setError] = useState(""); // Handle errors
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const fetchUser = async () => {
+    try {
+      const user = await getMe();
+      setRole(user.role);
+      
+      // 🔁 Navigate based on role after it's fetched
+      if (user.role === "admin") {
+        navigate("/admin-dashboard"); // ✅ Now admin also goes to /dashboard
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
 
   // ✅ Handle Input Change
   const handleChange = (e) => {
@@ -55,8 +73,7 @@ const LoginPage = () => {
           avatar: userCredential.avatar || "/default-avatar.png",
         })
       );
-      
-      navigate("/dashboard");
+      await fetchUser();
     } catch (error) {
       console.error("Login error:", error.message);
       setError("Invalid email or password. Please try again.");
@@ -79,7 +96,7 @@ const LoginPage = () => {
       );
   
       console.log("Google Login successful!");
-      navigate("/dashboard");
+      await fetchUser();
     } catch (err) {
       console.error("Google login error:", err.message);
       setError("Google login failed. Please try again.");

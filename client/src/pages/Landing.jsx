@@ -6,6 +6,7 @@ import locationImage from '../assets/garbage2.jpg';
 import instantResultsImage from '../assets/garbage4.jpg';
 import recyclingInfoImage from '../assets/education.jpg';
 import garbageCollectionImage from '../assets/garbage_van.jpg';
+import { getMe } from '../apis/userApi';
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -14,6 +15,7 @@ import { useLocation } from "react-router-dom";
 export default function LandingPage() {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [role, setRole] = useState("");
 
     const location = useLocation();
 
@@ -21,6 +23,19 @@ export default function LandingPage() {
       const token = localStorage.getItem("firebaseUID");
       setIsLoggedIn(token);
     }, [location]);
+
+
+    if(isLoggedIn){
+      const fetchUser = async () => {
+            try {
+              const user = await getMe();
+              setRole(user.role);
+            } catch (error) {
+              console.error("Error fetching user:", error);
+            }
+          };
+          fetchUser();
+    }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-800 text-white flex flex-col items-center justify-center p-8">
@@ -194,7 +209,8 @@ export default function LandingPage() {
                 </Link>
                 </>
             ) : (
-                <Link to="/dashboard">
+                <Link 
+                to={role === 'admin' ? "/admin-dashboard" : "/dashboard"}>
                 <button className="bg-purple-600 text-white h-16 px-8 py-2 rounded-full shadow-lg font-bold hover:bg-purple-700 transition duration-300">
                     Go to Dashboard
                 </button>
