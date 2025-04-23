@@ -19,6 +19,9 @@ import EditUserProfile from './pages/register/profile/editProfile';
 import TransactionsPage from './pages/TransactionPage';
 import { getMe } from './apis/userApi';
 import Navbar from './components/websiteNavbar';
+import AdminDashboard from './pages/adminPages/adminDashboard';
+import ContactMessages from './pages/contactMessages';
+
 
 function App() {
   const location = useLocation();
@@ -73,6 +76,8 @@ function App() {
         <Route path="/withdrawl-money" element={<Wallet />} />
         <Route path="/contact-us" element={<ContactUsPage />} />
         <Route path="/transactions" element={<TransactionsPage />} />
+        <Route path="/admin-dashboard" element = {<AdminDashboard />} />
+        <Route path="/admin/contact-messages" element={<ContactMessages />} />
       </Routes>
     </>
   );

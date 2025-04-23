@@ -35,3 +35,22 @@ export const submitContactForm = async (req, res, next) => {
     });
   }
 };
+
+export const getAllContacts = async (req, res) => {
+  try {
+    const messages = await Contact.find().sort({ createdAt: -1 }); // latest first
+    res.status(200).json(messages);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch messages" });
+  }
+}
+
+export const deleteContact = async (req, res) => {
+  try {
+    const deleted = await Contact.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: "Message not found" });
+    res.status(200).json({ message: "Deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete" });
+  }
+}
