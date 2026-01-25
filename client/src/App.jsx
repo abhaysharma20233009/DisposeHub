@@ -26,8 +26,10 @@ import AdminTransactions from './pages/AdminTransactions';
 
 function App() {
   const location = useLocation();
-  const hideNavbar = location.pathname === "/";
+  const hideNavbarRoutes = ["/", "/login", "/signup"];
+  const hideNavbar = hideNavbarRoutes.includes(location.pathname);
 
+  const [authLoading, setAuthLoading] = useState(true);
   const [role, setRole] = useState(null);
   const [name, setName] = useState(null);
   const [garbageDumps, setGarbageDumps] = useState({ data: [] });
@@ -36,8 +38,14 @@ function App() {
     const fetchUser = async () => {
       try {
         const user = await getMe();
-        setRole(user.role);
-        setName(user.name);
+        if (user) {
+          setRole(user.role);
+          setName(user.name);
+        } else {
+          setRole(null);
+          setName(null);
+        }
+        setAuthLoading(false);
       } catch (error) {
         console.error("Error fetching user:", error);
       }

@@ -4,34 +4,47 @@ import { motion } from "framer-motion";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Avatar from "@mui/material/Avatar";
-import { Link } from "react-router-dom"; // Used for routing to LeafletMap.jsx
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { deepPurple } from "@mui/material/colors";
 
 export default function UserDashboard() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
       const uid = localStorage.getItem("firebaseUID");
-      if (uid) {
-        try {
-          const data = await getMe(uid);
-          setUser(data);
-        } catch (err) {
-          console.error("Error fetching user data", err);
-        }
+      if (!uid) {
+        setLoading(false);
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const data = await getMe(uid);
+        setUser(data);
+      } catch (err) {
+        console.error("Error fetching user data", err);
+        navigate("/login");
+      }finally {
+        setLoading(false);
       }
     };
     fetchUser();
   }, []);
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex justify-center items-center" style={{ background: 'linear-gradient(135deg, #2D0035, #150050)' }}>
-        <CircularProgress sx={{ color: "#fff" }} />
-      </div>
-    );
-  }
+if (loading) {
+  return (
+    <div className="min-h-screen flex justify-center items-center"
+      style={{ background: 'linear-gradient(135deg, #2D0035, #150050)' }}>
+      <CircularProgress sx={{ color: "#fff" }} />
+    </div>
+  );
+}
+
+if (!user) return null;
 
   const renderUserSections = () => (
     <div className="min-h-screen flex flex-col items-center py-12 px-6">

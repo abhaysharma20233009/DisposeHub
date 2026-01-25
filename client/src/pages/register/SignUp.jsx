@@ -79,6 +79,9 @@ const SignupPage = () => {
 
       navigate("/dashboard");
     } catch (error) {
+      if (auth.currentUser) {
+        await auth.currentUser.delete();
+      }
       console.error("Signup error:", error.message);
       alert("Signup failed. Please try again.");
     }
@@ -90,12 +93,11 @@ const SignupPage = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Save user data to your backend
       await signupUser({
         firebaseUID: user.uid,
         name: user.displayName,
         email: user.email,
-        role: "user",  // Default or dynamic based on your app logic
+        role: "user",
       });
 
       // Dispatch login success
@@ -104,7 +106,7 @@ const SignupPage = () => {
           uid: user.uid,
           name: user.displayName,
           email: user.email,
-          role: "user",  // Adjust if necessary
+          role: "user",
         })
       );
 
@@ -113,6 +115,9 @@ const SignupPage = () => {
 
     } catch (error) {
       console.error("Google Sign-in error:", error.message);
+      if (auth.currentUser) {
+        await auth.currentUser.delete();
+      }
       alert("Failed to sign in with Google. Please try again.");
     }
   };
@@ -319,6 +324,7 @@ const SignupPage = () => {
         </Button>
 
         <Button
+          disabled
           fullWidth
           variant="outlined"
           startIcon={<FacebookIcon />}

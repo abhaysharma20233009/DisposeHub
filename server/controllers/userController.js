@@ -5,58 +5,7 @@ import multer from 'multer';
 import fs from 'fs';
 import Email from "../utils/email.js";
 import Notification from "../models/notificationModel.js"
-/**
- * Add a new user to the database after Firebase Signup
- * Expected Request Body: { firebaseUID, name, username, email }
- */
-export const register = async (req, res) => {
-    try {
-      const { name, email, password, role, vehicleNumber } = req.body;
-  
-      // Basic validations
-      if (!name || !email || !password || !role) {
-        return res.status(400).json({ message: "Name, email, password, and role are required" });
-      }
-  
-      if (role === 'driver' && !vehicleNumber) {
-        return res.status(400).json({ message: "Vehicle number is required for drivers" });
-      }
-  
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ message: "User already exists" });
-      }
-  
-      const hashedPassword = await bcrypt.hash(password, 10);
-  
-      const newUser = new User({
-        name,
-        email,
-        password: hashedPassword,
-        role,
-        vehicleNumber: role === 'driver' ? vehicleNumber : undefined,
-        walletBalance: 0
-      });
-  
-      await newUser.save();
-  
-      res.status(201).json({
-        message: "User registered successfully",
-        user: {
-          name: newUser.name,
-          email: newUser.email,
-          role: newUser.role,
-          vehicleNumber: newUser.vehicleNumber || null,
-          walletBalance: newUser.walletBalance
-        }
-      });
-  
-    } catch (error) {
-      console.error("Error registering user:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  };
-  // Login User
+
   export const login = async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -78,21 +27,20 @@ export const register = async (req, res) => {
     }
   };
   
-  // Google Login  
+  
   export const addUser = async (req, res) => {
     try {
       const {
-        firebaseUID, // Will be present only in Firebase-based signup
+        firebaseUID,
         name,
         email,
-        password,     // Will be present only in traditional signup
+        password,
         role = "user",
         vehicleNumber
       } = req.body;
   
       // Firebase-based signup
       if (firebaseUID) {
-        console.log("from userController yes firebaseUID is presesnt ");
         if (!name || !email) {
           return res.status(400).json({ success: false, message: "Missing required fields" });
         }
@@ -116,7 +64,7 @@ export const register = async (req, res) => {
         });
   
         await newUser.save();
-        await new Email(newUser,0).sendWelcome();
+        // await new Email(newUser,0).sendWelcome();
   
         return res.status(201).json({
           success: true,
@@ -188,9 +136,7 @@ export const register = async (req, res) => {
     }
   };
   
-/**
- * Fetch user by Firebase UID
- */
+
 export const getUserByUID = async (req, res) => {
   
     try {
@@ -215,10 +161,6 @@ export const getUserByUID = async (req, res) => {
   };
   
 
-/**
- * Update User - Allows updating only name, username & avatar
- * Expected Request Body: { name, username, avatar }
- */
 export const updateUser = async (req, res) => {
   try {
     const { firebaseUID } = req.params;
@@ -245,9 +187,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-/**
- * Get All Users
- */
+
 export const getAllUsers = async (req, res) => {    
   try {
     const users = await User.find();
@@ -257,9 +197,6 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-/**
- * Check if username is available
- */
 
 export const checkUsernameAvailability = async (req, res) => {
   try {
@@ -280,6 +217,7 @@ export const checkUsernameAvailability = async (req, res) => {
     res.status(500).json({ success: false, message: "Error checking username", error: error.message });
   }
 };
+
 const upload = multer({ dest: 'uploads/' }); 
 export const uploadProfilePhoto = async (req, res) => {
   // Use Multer middleware to handle file upload

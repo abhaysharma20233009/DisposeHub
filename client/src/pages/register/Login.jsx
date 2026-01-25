@@ -25,7 +25,7 @@ import { getMe } from "../../apis/userApi";
 const LoginPage = () => {
   const [input, setInput] = useState({ email: "", password: "" });
   const [role, setRole] = useState("");
-  const [error, setError] = useState(""); // Handle errors
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -34,9 +34,8 @@ const LoginPage = () => {
       const user = await getMe();
       setRole(user.role);
       
-      // 🔁 Navigate based on role after it's fetched
       if (user.role === "admin") {
-        navigate("/admin-dashboard"); // ✅ Now admin also goes to /dashboard
+        navigate("/admin-dashboard");
       } else {
         navigate("/dashboard");
       }
@@ -45,17 +44,16 @@ const LoginPage = () => {
     }
   };
 
-  // ✅ Handle Input Change
   const handleChange = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle Login
+  // Handle Login
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault();
 
     try {
-      // 🔹 Firebase Authentication (Login with Email & Password)
+      // Firebase Authentication (Login with Email & Password)
       const userCredential = await signInWithEmailAndPassword(
         auth,
         input.email,
@@ -63,7 +61,7 @@ const LoginPage = () => {
       );
       const firebaseUser = userCredential.user;
 
-      // 🔹 Send Firebase UID to the backend
+      // Send Firebase UID to the backend
       await loginUser(firebaseUser.uid);
 
       dispatch(
@@ -117,7 +115,7 @@ const LoginPage = () => {
         padding: 0,
       }}
     >
-      {/* Background Animation */}
+
       <Box
         sx={{
           position: "absolute",
@@ -131,7 +129,6 @@ const LoginPage = () => {
         <Lottie animationData={backgroundAnimation} loop autoPlay />
       </Box>
 
-      {/* Typewriter Effect Text */}
       <Typography
         variant="h4"
         sx={{
@@ -153,7 +150,6 @@ const LoginPage = () => {
         />
       </Typography>
 
-      {/* Glassmorphic Login Card */}
       <Paper
         elevation={10}
         sx={{
@@ -176,14 +172,12 @@ const LoginPage = () => {
           Welcome Back
         </Typography>
 
-        {/* Display error message */}
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
             {error}
           </Typography>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleLogin} style={{ width: "100%" }}>
           <TextField
             fullWidth
@@ -238,7 +232,6 @@ const LoginPage = () => {
           </Button>
         </form>
 
-        {/* First Time Here? Sign Up Now */}
         <Typography variant="body2" sx={{ mt: 2, color: "#ffffff" }}>
           First time here?{" "}
           <Link
@@ -256,7 +249,6 @@ const LoginPage = () => {
 
         <Divider sx={{ my: 3, borderColor: "#ffffff" }}>OR</Divider>
 
-        {/* Google Login */}
         <Button
           fullWidth
           variant="outlined"
@@ -277,8 +269,7 @@ const LoginPage = () => {
           Continue with Google
         </Button>
 
-        {/* Facebook Login */}
-        <Button
+        <Button disabled
           fullWidth
           variant="outlined"
           color="inherit"
