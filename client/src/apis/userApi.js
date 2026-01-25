@@ -1,4 +1,3 @@
-// src/apis/userApi.js
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -7,7 +6,7 @@ export const getMe = async () => {
         const firebaseUID = localStorage.getItem("firebaseUID"); 
     
         if (!firebaseUID) {
-          throw new Error("User UID not found in localStorage");
+          return null;
         }
     
         const response = await axios.get(
@@ -16,12 +15,14 @@ export const getMe = async () => {
          //console.log(response.user+response);
         return response.data.user;
       } catch (error) {
-        console.error("Error fetching user by UID:", error);
-        throw error.response?.data || { message: "Failed to fetch user" };
+        // console.error("Error fetching user by UID:", error);
+        if (error.response?.status !== 404) {
+          console.error("Failed to fetch user:", error);
+        }
+        return null;
       }
 };
 
-// src/api/userApi.js
 
 export const uploadProfilePicture = async (file) => {
     const formData = new FormData();

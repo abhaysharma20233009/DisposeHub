@@ -175,7 +175,22 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
           const lng = position.coords.longitude;
           setMyLocation({ lat, lng });
           socket.emit('location', { lat, lng });
-        });
+        },
+        (error) => {
+          console.error("Geolocation error:", error.message);
+
+          // Default to MNNIT Prayagraj
+          const lat = 25.4745;
+          const lng = 81.8787;
+          setMyLocation({ lat, lng });
+          socket.emit('location', { lat, lng });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
       }
     };
   

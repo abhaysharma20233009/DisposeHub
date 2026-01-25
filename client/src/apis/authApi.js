@@ -7,7 +7,7 @@ export const signupUser = async (userData) => {
     
     const firebaseUID = response.data?.user.uid;
     if (firebaseUID) {
-      localStorage.setItem('firebaseUID', firebaseUID); // ✅ Save UID in localStorage
+      localStorage.setItem('firebaseUID', firebaseUID);
     }
 
     return response.data;
@@ -22,7 +22,7 @@ export const loginUser = async (firebaseUID) => {
     const response = await axios.get(`${API_BASE_URL}/users/auth/login/${firebaseUID}`);
     
     if (firebaseUID) {
-      localStorage.setItem('firebaseUID', firebaseUID); // ✅ Save UID in localStorage
+      localStorage.setItem('firebaseUID', firebaseUID);
     }
 
     return response.data;
