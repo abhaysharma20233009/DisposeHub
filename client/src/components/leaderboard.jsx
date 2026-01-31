@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client';
+import React, { useState, useEffect } from 'react';
+import { getSocket } from "../socket/socket";
 import {
   Avatar,
   Paper,
@@ -22,62 +22,69 @@ const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
   const [socketError, setSocketError] = useState(false);
   const [lottieData, setLottieData] = useState(null);
-  const socketRef = useRef(null);
   const theme = useTheme();
 
-  const setupSocket = () => {
-    try {
-      if (!socketRef.current) {
-        socketRef.current = io('http://localhost:3000');
+  // const setupSocket = () => {
+  //   try {
+  //     if (!socketRef.current) {
+  //       socketRef.current = io("http://localhost:3000", {
+  //         withCredentials: true,
+  //       });;
 
-        socketRef.current.on('connect', () => {
-          setSocketError(false);
-        });
+  //       socketRef.current.on('connect', () => {
+  //         setSocketError(false);
+  //       });
 
-        socketRef.current.on('leaderboard', (data) => {
-          setUsers(data);
-          setLoading(false);
-        });
+  //       socketRef.current.on('leaderboard', (data) => {
+  //         setUsers(data);
+  //         setLoading(false);
+  //       });
 
-        socketRef.current.on('connect_error', () => {
-          setSocketError(true);
-          setLoading(false);
-        });
-      }
-    } catch (err) {
-      console.error(err);
-      setSocketError(true);
-      setLoading(false);
-    }
-  };
+  //       socketRef.current.on('connect_error', () => {
+  //         setSocketError(true);
+  //         setLoading(false);
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     setSocketError(true);
+  //     setLoading(false);
+  //   }
+  // };
 
-  const cleanupSocket = () => {
-    if (socketRef.current) {
-      socketRef.current.off('leaderboard');
-      socketRef.current.disconnect();
-      socketRef.current = null;
-    }
-  };
+  // const cleanupSocket = () => {
+  //   if (socketRef.current) {
+  //     socketRef.current.off('leaderboard');
+  //     socketRef.current.disconnect();
+  //     socketRef.current = null;
+  //   }
+  // };
 
   useEffect(() => {
-    const handleFocus = () => {
-      setupSocket();
-    };
+      const socket = getSocket();
 
-    const handleBlur = () => {
-      cleanupSocket();
-    };
+      if (!socket) {
+        setSocketError(true);
+        setLoading(false);
+        return;
+      }
 
-    if (document.hasFocus()) handleFocus();
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('blur', handleBlur);
+      socket.on("leaderboard", (data) => {
+        setUsers(data);
+        setLoading(false);
+        setSocketError(false);
+      });
 
-    return () => {
-      cleanupSocket();
-      window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('blur', handleBlur);
-    };
-  }, []);
+      socket.on("connect_error", () => {
+        setSocketError(true);
+        setLoading(false);
+      });
+
+      return () => {
+        socket.off("leaderboard");
+        socket.off("connect_error");
+      };
+    }, []);
 
   // Fetch Lottie JSON from URL
   useEffect(() => {

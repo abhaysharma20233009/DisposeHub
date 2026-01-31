@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import { Player } from "@lottiefiles/react-lottie-player";
 import loadingAnimation from "../assets/loading.json";
+import { getSocket } from "../socket/socket";
 
-const socket = io("http://localhost:3000");
 
 const NotificationDropdown = ({ sendData }) => {
   const [notifications, setNotifications] = useState([]);
@@ -11,9 +10,10 @@ const NotificationDropdown = ({ sendData }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const firebaseUID = localStorage.getItem("firebaseUID");
+    const socket = getSocket();
+    if (!socket) return;
 
-    socket.emit("fetchNotifications", { firebaseUID });
+    socket.emit("fetchNotifications");
 
     socket.on("allNotifications", (fetchedNotifications) => {
       const updated = fetchedNotifications.map((notif) => ({
