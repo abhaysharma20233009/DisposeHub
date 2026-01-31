@@ -1,28 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import WithdrawalForm from './WithdrawalForm';
-import axios from 'axios';
-import WalletBg from '../assets/transactionPage-bg.jpeg'; // use same bg
+import WalletBg from '../assets/transactionPage-bg.jpeg';
+import { getMe } from '../apis/userApi';
+import { withdrawMoney } from '../apis/transactionAPI';
 
 export const Wallet = () => {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  const MIN_WITHDRAWAL = Number(import.meta.env.VITE_MIN_WITHDRAWAL) || 50;
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [balance, setBalance] = useState(0);
   const [withdrawRequest, setWithdrawRequest] = useState(false);
 
   const handleWithdrawClick = () => setIsFormVisible(true);
   const handleCancel = () => setIsFormVisible(false);
-  const handleFormSubmit = (formData) => {
-    setIsFormVisible(false);
+
+  const handleFormSubmit = async (formData) => {
     setWithdrawRequest(true);
+    setIsFormVisible(false);
+
+    try {
+      const res = await withdrawMoney(formData);
+      setBalance(res.walletBalance);
+    } catch (err) {
+      console.error("Withdrawal failed", err);
+      alert("Withdrawal failed");
+    } finally {
+      setWithdrawRequest(false);
+    }
   };
 
   useEffect(() => {
     const fetchWalletBalance = async () => {
       try {
-        const firebaseUID = localStorage.getItem("firebaseUID"); 
-        if (!firebaseUID) throw new Error("User UID not found");
-        const response = await axios.get(`${API_BASE_URL}/users/${firebaseUID.trim()}`);
-        setBalance(response.data.user.walletBalance);
+        const user = await getMe();
+        setBalance(user.walletBalance);
       } catch (error) {
         console.error("Error fetching user:", error);
       }
@@ -41,18 +51,31 @@ export const Wallet = () => {
           Balance: <span className="text-cyan-300 font-bold text-xl">{withdrawRequest ?  'processing ...' : `₹${balance}`}</span>
         </p>
 
-        {balance >= 500 && (
-          <button
-            onClick={handleWithdrawClick}
-            className="bg-cyan-500 hover:bg-cyan-600 transition text-white py-2 px-4 rounded-xl font-semibold"
-          >
-            Withdraw Money
-          </button>
+        <button
+          onClick={handleWithdrawClick}
+          disabled={balance < MIN_WITHDRAWAL}
+          className={`transition text-white py-2 px-4 rounded-xl font-semibold cursor-pointer ${
+            balance >= MIN_WITHDRAWAL
+              ? 'bg-cyan-500 hover:bg-cyan-600'
+              : 'bg-gray-500 cursor-not-allowed'
+          }`}
+        >
+          Withdraw Money
+        </button>
+
+        {/* Show minimum withdrawal info if balance is low */}
+        {balance < MIN_WITHDRAWAL && (
+          <p className="text-sm text-gray-400 mt-2">
+            Minimum withdrawal amount is ₹{MIN_WITHDRAWAL}
+          </p>
         )}
 
         {isFormVisible && (
           <div className="mt-8">
-            <WithdrawalForm onSubmit={handleFormSubmit} onCancel={handleCancel} setBalance={setBalance} setWithdrawRequest={setWithdrawRequest}/>
+            <WithdrawalForm 
+              onSubmit={handleFormSubmit} 
+              onCancel={handleCancel} 
+            />
           </div>
         )}
       </div>

@@ -5,7 +5,6 @@ import { getMe } from "../../../../src/apis/userApi";
 import { Card, CardContent, Typography, Box } from "@mui/material";
 import { useSpring, animated, config } from "react-spring";
 import styled, { keyframes } from "styled-components";
-// Keyframes for animations
 
 const fall = keyframes`
   0% {
@@ -79,25 +78,56 @@ export default function UserProfile() {
   const fetchUser = async () => {
     try {
       const userData = await getMe();
-      setUser(userData);
+      if(userData)
+        setUser(userData);
     } catch (error) {
-      console.log(error.message || "Error loading user data ❌");
+      console.error(error);
+
+      // If unauthorized → go to login
+      if (error?.response?.status === 401) {
+        navigate("/login");
+      }
     } finally {
       setLoading(false);
     }
   };
 
+
   useEffect(() => {
     fetchUser();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        <p className="text-lg animate-pulse">Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-white gap-4">
+        <p className="text-red-400 text-lg">
+          You are not logged in or your session has expired.
+        </p>
+        <button
+          onClick={() => navigate("/login")}
+          className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
+        >
+          Go to Login
+        </button>
+      </div>
+    );
+  }
 
   // Generate falling coins with random properties
   const generateCoins = () => {
     const coins = [];
     const coinImages = [
-      'https://cdn-icons-png.flaticon.com/512/272/272525.png', // Gold coin
-      'https://cdn-icons-png.flaticon.com/512/3132/3132693.png', // Silver coin
-      'https://cdn-icons-png.flaticon.com/512/477/477029.png' // Bronze coin
+      'https://cdn-icons-png.flaticon.com/512/272/272525.png',
+      'https://cdn-icons-png.flaticon.com/512/3132/3132693.png',
+      'https://cdn-icons-png.flaticon.com/512/477/477029.png'
     ];
     
     for (let i = 0; i < 8; i++) {
@@ -136,9 +166,6 @@ export default function UserProfile() {
     );
   };
 
-  if (!user) {
-    return <p className="text-center text-red-500">Error loading user data</p>;
-  }
 
   return (
     <div className="flex items-center justify-center  gap-8 p-8 min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">

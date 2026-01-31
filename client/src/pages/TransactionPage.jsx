@@ -1,33 +1,35 @@
-// src/pages/TransactionsPage.jsx
 import { useEffect, useState } from 'react';
 import { fetchUserTransactions } from '../apis/transactionAPI';
 import TransactionList from '../components/Transaction/TransactionList';
-import Rupee from "../assets/transactionPage-bg.jpeg"; // make sure this file exists
+import Rupee from "../assets/transactionPage-bg.jpeg";
+import { useNavigate } from "react-router-dom";
 
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getTransactions = async () => {
-      const firebaseUID = localStorage.getItem("firebaseUID");
-      if (!firebaseUID) return alert("User not logged in");
-
       try {
-        const data = await fetchUserTransactions(firebaseUID.trim());
+        const data = await fetchUserTransactions();
         setTransactions(data);
       } catch (err) {
-        console.error("Error fetching transactions", err);
+        if (err.response?.status === 401) {
+          navigate("/login");
+        } else {
+          console.error("Error fetching transactions", err);
+        }
       }
     };
 
     getTransactions();
-  }, []);
+  }, [navigate]);
 
   return (
     <div
       className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center px-4 py-10"
       style={{
-        backgroundImage: `url(${Rupee})`, // use the imported image here
+        backgroundImage: `url(${Rupee})`,
       }}
     >
       <div className="w-full max-w-2xl bg-black/60 backdrop-blur-md rounded-3xl p-6 shadow-2xl">

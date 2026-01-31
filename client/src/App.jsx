@@ -75,7 +75,7 @@ function App() {
     <>
       {!hideNavbar && <Navbar role={role} />}
       <Routes>
-        <Route path="/" element={<LandingPage role={role} isLoggedIn={!!role} />} />
+        <Route path="/" element={<LandingPage role={role} isLoggedIn={!!role}/>} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
