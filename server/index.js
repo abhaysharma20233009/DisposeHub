@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import path from "path";
+import rootDir from './utils/rootDir.js';
 import AppError from "./utils/appError.js";
 import globalErrorHandler from "./controllers/errorController.js";
 import userRoutes from './routes/userRoutes.js';
@@ -19,7 +21,6 @@ import authRoutes from "./routes/googleAuthRoutes.js";
 const app = express();
 import RewardDistributionRouter from './routes/adminRoutes.js';
 import walletRoutes from './routes/walletRoutes.js';
-import emailRoutes from './routes/emailRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js'
 dotenv.config({ path: './.env' });
@@ -39,7 +40,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
-
+app.use(express.static(path.join(rootDir, 'public')));
 // Routes
 app.use('/api/v1/users', userRoutes);
 app.use("/api/auth", authRoutes);
@@ -48,7 +49,6 @@ app.use('/api/garbage', garbageRoutes);
 
 app.use('/api/v1/rewards', RewardDistributionRouter);
 app.use('/api/wallet', walletRoutes);
-app.use('/api/email', emailRoutes);
 app.use('/api/v1/contact', contactRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
 
