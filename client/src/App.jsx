@@ -22,6 +22,8 @@ import Navbar from './components/websiteNavbar';
 import AdminDashboard from './pages/adminPages/adminDashboard';
 import ContactMessages from './pages/contactMessages';
 import AdminTransactions from './pages/AdminTransactions';
+import AuthCallback from "./auth/AuthCallback";
+
 
 
 function App() {
@@ -73,7 +75,8 @@ function App() {
     <>
       {!hideNavbar && <Navbar role={role} />}
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<LandingPage role={role} isLoggedIn={!!role} />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/driver" element={<DriverIntegrate role={role} name={name} garbageDumps={garbageDumps} />} />

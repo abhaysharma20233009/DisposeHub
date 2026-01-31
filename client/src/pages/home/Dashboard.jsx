@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { loginSuccess, logout } from "../../redux/authSlice";
 import { getMe } from "../../apis/userApi";
 import { motion } from "framer-motion";
 import Button from "@mui/material/Button";
@@ -9,42 +11,52 @@ import { useNavigate } from "react-router-dom";
 import { deepPurple } from "@mui/material/colors";
 
 export default function UserDashboard() {
-  const [user, setUser] = useState(null);
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
-      const uid = localStorage.getItem("firebaseUID");
-      if (!uid) {
+      if (user) {
         setLoading(false);
-        navigate("/login");
         return;
       }
-
       try {
-        const data = await getMe(uid);
-        setUser(data);
+        const data = await getMe();
+        dispatch(
+          loginSuccess({
+            name: data.name,
+            email: data.email,
+            role: data.role,
+            avatar: data.avatar || "/default-avatar.png",
+            vehicleNumber: data.vehicleNumber || null,
+            points: data.points || 0,
+            walletBalance: data.walletBalance || 0,
+          })
+        );
       } catch (err) {
-        console.error("Error fetching user data", err);
+        console.error("Error fetching user:", err);
+        dispatch(logout());
         navigate("/login");
-      }finally {
+      } finally {
         setLoading(false);
       }
     };
+
     fetchUser();
-  }, []);
+  }, [dispatch, navigate, user]);
 
-if (loading) {
-  return (
-    <div className="min-h-screen flex justify-center items-center"
-      style={{ background: 'linear-gradient(135deg, #2D0035, #150050)' }}>
-      <CircularProgress sx={{ color: "#fff" }} />
-    </div>
-  );
-}
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center"
+        style={{ background: 'linear-gradient(135deg, #2D0035, #150050)' }}>
+        <CircularProgress sx={{ color: "#fff" }} />
+      </div>
+    );
+  }
 
-if (!user) return null;
+  if (!user) return null;
 
   const renderUserSections = () => (
     <div className="min-h-screen flex flex-col items-center py-12 px-6">

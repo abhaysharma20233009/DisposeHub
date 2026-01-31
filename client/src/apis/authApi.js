@@ -1,43 +1,27 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
+
+/* ================= SIGNUP ================= */
 export const signupUser = async (userData) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/users/auth/signup`, userData);
-    
-    const firebaseUID = response.data?.user.uid;
-    if (firebaseUID) {
-      localStorage.setItem('firebaseUID', firebaseUID);
-    }
-
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Signup failed");
-  }
+  const res = await api.post("/users/signup", userData);
+  return res.data;
 };
 
-// Save firebaseUID to localStorage during login
-export const loginUser = async (firebaseUID) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/users/auth/login/${firebaseUID}`);
-    
-    if (firebaseUID) {
-      localStorage.setItem('firebaseUID', firebaseUID);
-    }
-
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Login failed");
-  }
+/* ================= LOGIN ================= */
+export const loginUser = async (credentials) => {
+  const res = await api.post("/users/login", credentials);
+  return res.data;
 };
 
-export const checkUsernameAvailability = async (username) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/users/check-username/${username}`); // Pass username as a URL parameter
-    console.log(response);
-    return response.data.success; // Return true if available, false otherwise
-  } catch (error) {
-    console.error("Error checking username availability:", error.message);
-    return false; // Default to false if there's an error
-  }
+/* ================= LOGOUT ================= */
+export const logoutUser = async () => {
+  const res = await api.post("/users/logout");
+  return res.data;
 };

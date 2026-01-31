@@ -1,13 +1,19 @@
 import express from "express";
-import { addUser, getUserByUID, updateUser,uploadProfilePhoto, getAllUsers , checkUsernameAvailability} from "../controllers/userController.js";
+import * as userController from "../controllers/userController.js";
+import {login, signup, logout, forgotPassword, resetPassword, protect} from "../controllers/authController.js"
 
 const router = express.Router();
 
-router.post("/auth/signup", addUser  );      // Route to add a new user
-router.get("/auth/login/:uid", getUserByUID); // Route to get user by Firebase UID
-router.get("/:uid", getUserByUID); // Route to update user by Firebase UID
-router.get("/", getAllUsers); // Route to get all users
-router.get("/check-username/:username", checkUsernameAvailability); // Route to check username availability
-router.put("/upload-profile-photo/:uid", uploadProfilePhoto);
-router.put("/update-profile/:firebaseUID", updateUser);
+router.post("/signup", signup);
+router.post("/login", login);
+router.post('/logout', logout);
+router.post('/forgotPassword', forgotPassword);
+router.patch('/resetPassword/:token', resetPassword);
+
+router.use(protect);
+router.get("/me", userController.getMe, userController.getCurrentUser);
+// router.get("/", getAllUsers); // Route to get all users
+// router.get("/check-username/:username", checkUsernameAvailability); // Route to check username availability
+// router.put("/upload-profile-photo/:uid", uploadProfilePhoto);
+// router.put("/update-profile/:firebaseUID", updateUser);
 export default router;

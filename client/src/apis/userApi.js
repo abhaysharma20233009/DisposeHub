@@ -1,26 +1,23 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
+
 export const getMe = async () => {
-    try {
-        const firebaseUID = localStorage.getItem("firebaseUID"); 
-    
-        if (!firebaseUID) {
-          return null;
-        }
-    
-        const response = await axios.get(
-          `${API_BASE_URL}/users/${firebaseUID.trim()}`
-        );
-         //console.log(response.user+response);
-        return response.data.user;
-      } catch (error) {
-        // console.error("Error fetching user by UID:", error);
-        if (error.response?.status !== 404) {
-          console.error("Failed to fetch user:", error);
-        }
-        return null;
-      }
+  try {
+    const res = await api.get("/users/me");
+    return res.data.data.data;
+  } catch (err) {
+    if (err.response?.status === 401) {
+      return null;
+    }
+    throw err;
+  }
 };
 
 

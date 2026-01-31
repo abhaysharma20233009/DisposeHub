@@ -3,7 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet-routing-machine';
-import io from 'socket.io-client';
+import { getSocket } from "../socket/socket";
 
 // Custom red marker
 const redIcon = new L.Icon({
@@ -15,7 +15,6 @@ const redIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-const socket = io('http://localhost:3000'); // your backend socket URL
 
 const DriverLeafletMap = ({ locations }) => {
   const mapRef = useRef(null);
@@ -44,7 +43,11 @@ const DriverLeafletMap = ({ locations }) => {
               lng: pos.coords.longitude,
             };
             setLocation(coords);
-            socket.emit('location', coords);
+            const socket = getSocket();
+            if(socket){
+              socket.emit('location', coords);
+            }
+            
 
             // Animate map to user location
             if (mapRef.current) {

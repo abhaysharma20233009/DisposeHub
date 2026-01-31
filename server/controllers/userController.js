@@ -5,160 +5,13 @@ import multer from 'multer';
 import fs from 'fs';
 import Email from "../utils/email.js";
 import Notification from "../models/notificationModel.js"
+import { getOne } from './handlerFactory.js';
 
-  export const login = async (req, res) => {
-    try {
-      const { email, password } = req.body;
-  
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
-      }
-  
-      const user = await User.findOne({ email });
-      if (!user) return res.status(404).json({ message: "User not found" });
-  
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
-  
-      res.status(200).json({ message: "Login successful", user: { name: user.name, email: user.email } });
-    } catch (error) {
-      console.error("Error logging in:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  };
-  
-  
-  export const addUser = async (req, res) => {
-    try {
-      const {
-        firebaseUID,
-        name,
-        email,
-        password,
-        role = "user",
-        vehicleNumber
-      } = req.body;
-  
-      // Firebase-based signup
-      if (firebaseUID) {
-        if (!name || !email) {
-          return res.status(400).json({ success: false, message: "Missing required fields" });
-        }
-  
-        if (role === "driver" && !vehicleNumber) {
-          return res.status(400).json({ success: false, message: "Vehicle number is required for drivers" });
-        }
-  
-        const existingUser = await User.findOne({ firebaseUID });
-        if (existingUser) {
-          return res.status(400).json({ success: false, message: "User already exists" });
-        }
-  
-        const newUser = new User({
-          firebaseUID,
-          name,
-          email,
-          role,
-          vehicleNumber: role === "driver" ? vehicleNumber : undefined,
-          walletBalance: 0
-        });
-  
-        await newUser.save();
-        // await new Email(newUser,0).sendWelcome();
-  
-        return res.status(201).json({
-          success: true,
-          message: "Firebase user added successfully",
-          user: {
-            uid: newUser.firebaseUID,
-            name: newUser.name,
-            email: newUser.email,
-            role: newUser.role,
-            vehicleNumber: newUser.vehicleNumber || null,
-            walletBalance: newUser.walletBalance,
-          },
-        });
-      }
-  
-      // Traditional (non-Firebase) signup
-      const { username } = req.body;
-  
-      if (!name || !email || !password || !username) {
-        return res.status(400).json({ success: false, message: "Missing required fields for traditional signup" });
-      }
-  
-      if (role === "driver" && !vehicleNumber) {
-        return res.status(400).json({ success: false, message: "Vehicle number is required for drivers" });
-      }
-  
-      const existingEmail = await User.findOne({ email });
-      if (existingEmail) {
-        return res.status(400).json({ success: false, message: "Email is already registered" });
-      }
-  
-      const existingUsername = await User.findOne({ username });
-      if (existingUsername) {
-        return res.status(400).json({ success: false, message: "Username is already taken" });
-      }
-  
-      const hashedPassword = await bcrypt.hash(password, 10);
-  
-      const newUser = new User({
-        name,
-        email,
-        username,
-        password: hashedPassword,
-        role,
-        vehicleNumber: role === "driver" ? vehicleNumber : undefined,
-        walletBalance: 0
-      });
-  
-      await newUser.save();
-      await new Email(newUser,0).sendWelcome();
 
-  
-      return res.status(201).json({
-        success: true,
-        message: "Traditional user registered successfully",
-        user: {
-          name: newUser.name,
-          email: newUser.email,
-          username: newUser.username,
-          role: newUser.role,
-          vehicleNumber: newUser.vehicleNumber || null,
-          walletBalance: newUser.walletBalance,
-        },
-      });
-  
-    } catch (error) {
-      console.error("Error adding user:", error);
-      res.status(500).json({ success: false, message: "Server error", error: error.message });
-    }
-  };
-  
-
-export const getUserByUID = async (req, res) => {
-  
-    try {
-      const { uid } = req.params;
-      //console.log(`Looking for user with UID: [${uid}]`);
-  
-      const user = await User.findOne({ firebaseUID: uid.trim() });
-            
-            
-      if (!user) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-  
-      res.status(200).json({ success: true, user });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Error fetching user",
-        error: error.message,
-      });
-    }
-  };
+export const getMe = (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+};
   
 
 export const updateUser = async (req, res) => {
@@ -262,3 +115,4 @@ export const uploadProfilePhoto = async (req, res) => {
     }
   });
 };
+export const getCurrentUser = getOne(User);

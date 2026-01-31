@@ -10,6 +10,11 @@ import garbageRoutes from './routes/garbageRoute.js';
 import dotenv from 'dotenv';
 import cloudinary from 'cloudinary';
 
+import passport from "passport";
+import cookieParser from "cookie-parser";
+import "./config/passport.js";
+import authRoutes from "./routes/googleAuthRoutes.js";
+
 const app = express();
 import RewardDistributionRouter from './routes/adminRoutes.js';
 import walletRoutes from './routes/walletRoutes.js';
@@ -30,9 +35,13 @@ app.use(cors({
   }));
   app.use(express.json());
 
-// Routes
-app.use('/api/users', userRoutes);
+app.use(cookieParser());
+app.use(express.json());
+app.use(passport.initialize());
 
+// Routes
+app.use('/api/v1/users', userRoutes);
+app.use("/api/auth", authRoutes);
 app.use('/api/location/', locationRoutes);
 app.use('/api/garbage', garbageRoutes); 
 
