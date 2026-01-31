@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
-import {uploadProfilePicture, updateUserProfile } from "../../../apis/userApi";
+import {uploadProfilePicture, updateUserProfile } from "../../apis/userApi";
 
 export default function EditUserProfile() {
   const location = useLocation();

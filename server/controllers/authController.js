@@ -86,6 +86,16 @@ export const signup = catchAsync(async (req, res, next) => {
   });
 
   sendJwtCookie(newUser, res);
+
+  // Send welcome email
+  try {
+    const logoUrl = `${req.protocol}://${req.get("host")}/logo/logo.png`;
+    const dashboardURL = `${process.env.FRONTEND_URL}/dashboard`;
+    await new Email(newUser, dashboardURL, {logoUrl}).sendWelcome();
+  } catch (err) {
+    console.error("WELCOME EMAIL FAILED 💥", err);
+  }
+
   sendAuthResponse(newUser, 201, res);
 });
 
@@ -164,15 +174,14 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    const resetURL = `${req.protocol}://${req.get(
-      'host'
-    )}/api/v1/users/resetPassword/${resetToken}`;
+    const logoUrl = `${req.protocol}://${req.get("host")}/logo/logo.png`;
+    const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    await new Email(user, resetURL).sendPasswordReset();
+    await new Email(user, resetURL, {logoUrl}).sendPasswordReset();
 
     res.status(200).json({
       status: 'success',
-      message: 'Token sent to email!',
+      message: 'Password Reset link is send to your Email. Please check your Email!',
     });
   } catch (err) {
     user.passwordResetToken = undefined;
@@ -189,6 +198,12 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
 });
 
 export const resetPassword = catchAsync(async (req, res, next) => {
+  if (req.body.password.length < 5) {
+    return next(
+      new AppError("Password must be at least 5 characters long", 400)
+    );
+  }
+
   const hashedToken = crypto
     .createHash('sha256')
     .update(req.params.token)
@@ -201,7 +216,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new AppError('Token is invalid or has expired', 400)
+      new AppError('Link is invalid or has expired', 400)
     );
   }
 
@@ -211,8 +226,9 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
 
   await user.save();
-
-  createSendToken(user, 200, res);
+  
+  sendJwtCookie(user, res);
+  sendAuthResponse(user, 200, res);
 });
 
 export const updatePassword = catchAsync(async (req, res, next) => {
@@ -233,5 +249,6 @@ export const updatePassword = catchAsync(async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
 
-  createSendToken(user, 200, res);
+  sendJwtCookie(user, res);
+  sendAuthResponse(user, 200, res);
 });

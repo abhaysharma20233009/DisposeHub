@@ -218,6 +218,18 @@ const LoginPage = () => {
           >
             Login
           </Button>
+          <Typography
+            variant="body2"
+            sx={{
+              textAlign: "right",
+              color: "#ffffff",
+              cursor: "pointer",
+              mt: 1,
+            }}
+            onClick={() => navigate("/forgot-password")}
+          >
+            Forgot password?
+          </Typography>
         </form>
 
         <Typography variant="body2" sx={{ mt: 2, color: "#ffffff" }}>

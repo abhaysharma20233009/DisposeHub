@@ -1,18 +1,18 @@
+import fs from 'fs';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import nodemailer from 'nodemailer';
-import pug from 'pug';
 import { convert } from 'html-to-text';
-import catchAsync from './catchAsync.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
 class Email {
-  constructor(user, amount) {
-    this.amount=amount,
+  constructor(user, url = null, extraData = {}) {
     this.to = user.email;
     this.firstName = user.name.split(' ')[0];
     this.from = `${process.env.EMAIL_FROM}`;
+    this.url = url;
+    this.extraData = extraData;
   }
 
   newTransport() {
@@ -28,42 +28,39 @@ class Email {
       });
     }
 
-    // If needed, you can enable the fallback mailtrap configuration
     return nodemailer.createTransport({
-      host: 'smtp.mailtrap.io',
-      port: 587, // 587 is commonly used for STARTTLS
-      secure: false, // For STARTTLS, this should be false
+      host: process.env.MAILTRAP_HOST || 'sandbox.smtp.mailtrap.io',
+      port: process.env.MAILTRAP_PORT || 587,
+      secure: false,
       auth: {
-        user: process.env.EMAIL_USERNAME,
-          pass: process.env.EMAIL_PASSWORD,
+        user: process.env.MAILTRAP_USER,
+        pass: process.env.MAILTRAP_PASS,
       },
     });
   }
 
-  async send(template, subject) {
-    // 1) Get the current directory path
+  // Read HTML file from views/email folder
+  loadTemplate(templateName) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
+    const templatePath = join(__dirname, '../views/email', `${templateName}.html`);
 
-    // 2) Render HTML based on a pug template
-    let html = "";
-    if (template === 'welcome') {
-      html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
-        firstName: this.firstName,
-        subject,
-      });
-    } else {
-      html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
-        firstName: this.firstName,
-        amount: this.amount,
-        date: new Date().toLocaleString(),
-        referenceId: 'TXN2025041912345678',
-        url: 'http://localhost:5173/profile',
-        subject,
-      });
-    }
+    let html = fs.readFileSync(templatePath, 'utf-8');
 
-    // 3) Define the email options
+    // Replace template placeholders with actual values
+    html = html.replace(/{{firstName}}/g, this.firstName || '');
+    html = html.replace(/{{amount}}/g, this.extraData.amount || '');
+    html = html.replace(/{{date}}/g, new Date().toLocaleString());
+    html = html.replace(/{{referenceId}}/g, 'TXN2025041912345678');
+    html = html.replace(/{{url}}/g, this.url || 'http://localhost:5173/profile');
+    html = html.replace(/{{appName}}/g, 'DisposeHub');
+    html = html.replace(/{{logoUrl}}/g, this.extraData.logoUrl || '');
+    return html;
+  }
+
+  async send(templateName, subject) {
+    const html = this.loadTemplate(templateName);
+
     const mailOptions = {
       from: this.from, 
       to: this.to,
@@ -72,7 +69,6 @@ class Email {
       text: convert(html),
     };
 
-    // 4) Create a transport and send the email
     await this.newTransport().sendMail(mailOptions);
   }
 
@@ -82,6 +78,10 @@ class Email {
 
   async sendOnAmountTransfer() {
     await this.send('amountCredit', 'Amount Transfer Successful');
+  }
+
+  async sendPasswordReset() {
+    await this.send('passwordReset', 'Reset Your Password');
   }
 };
 
