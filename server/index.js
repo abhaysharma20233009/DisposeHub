@@ -30,8 +30,8 @@ cloudinary.config({
   
 // Middleware
 app.use(cors({
-    origin: "http://localhost:5173", // your frontend's origin
-    credentials: true,               // allow cookies to be sent
+    origin: "http://localhost:5173",
+    credentials: true,
   }));
   app.use(express.json());
 
@@ -49,6 +49,6 @@ app.use('/api/v1/rewards', RewardDistributionRouter);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/contact', contactRoutes);
-app.use('/api/transactions', transactionRoutes);
+app.use('/api/v1/transactions', transactionRoutes);
 // Export app
 export default app;
