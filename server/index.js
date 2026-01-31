@@ -1,6 +1,7 @@
-// app.js
 import express from 'express';
 import cors from 'cors';
+import AppError from "./utils/appError.js";
+import globalErrorHandler from "./controllers/errorController.js";
 import userRoutes from './routes/userRoutes.js';
 
 import locationRoutes from './routes/loactionRoute.js'; 
@@ -50,5 +51,8 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/v1/contact', contactRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
-// Export app
+
+// Global error handler
+app.use(globalErrorHandler);
+
 export default app;
