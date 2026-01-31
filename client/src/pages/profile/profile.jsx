@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
-import { getMe } from "../../../../src/apis/userApi";
+import { getMe } from "../../apis/userApi";
 import { Card, CardContent, Typography, Box } from "@mui/material";
 import { useSpring, animated, config } from "react-spring";
 import styled, { keyframes } from "styled-components";
@@ -168,19 +168,24 @@ export default function UserProfile() {
 
 
   return (
-    <div className="flex items-center justify-center  gap-8 p-8 min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div
+      className="flex items-center justify-center gap-8 p-8 min-h-screen text-white"
+      style={{ background: "linear-gradient(135deg, #2D0035, #150050)" }}
+    >
       {/* Profile Section */}
-      <div className="w-400 md:w-2/4 bg-white/10 backdrop-blur-md border border-gray-700 shadow-lg rounded-3xl p-6 relative overflow-hidden">
+      <div className="w-full md:w-2/4 bg-white/10 backdrop-blur-xl border border-purple-400/40 shadow-[0_0_40px_rgba(156,39,176,0.25)] rounded-3xl p-8 relative overflow-hidden">
+
+        {/* Edit Button */}
         <button
           onClick={() => navigate("/editProfile", { state: { user } })}
-          className="absolute top-4 right-4 p-2 bg-cyan-500 text-black rounded-full hover:bg-cyan-600 transition z-10"
+          className="absolute top-5 right-5 p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition shadow-lg hover:shadow-purple-500/50 z-10 cursor-pointer"
         >
-          <FaEdit size={20} />
+          <FaEdit size={18} />
         </button>
-  
+
         {/* Profile Picture */}
         <div className="flex flex-col items-center">
-          <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-cyan-400 shadow-lg">
+          <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-purple-400 shadow-[0_0_25px_rgba(156,39,176,0.6)]">
             <img
               src={user?.profilePicture || "/cop.jpg"}
               alt="Profile"
@@ -188,70 +193,100 @@ export default function UserProfile() {
             />
           </div>
         </div>
-  
+
         {/* User Info */}
-        <h2 className="mt-4 text-3xl font-bold text-cyan-400 text-center">{user.name}</h2>
-        <p className="text-center text-gray-300">{user.email}</p>
-  
-        {/* Points & Wallet Balance Sections with Animations */}
-        <Box mt={4} display="flex" justifyContent="center" alignItems="center" gap={4}>
-          {/* Points Section */}
+        <h2 className="mt-5 text-4xl font-extrabold text-purple-300 text-center tracking-wide">
+          {user.name}
+        </h2>
+        <p className="text-center text-gray-300 mt-1">{user.email}</p>
+
+        {/* Points & Wallet */}
+        <Box mt={6} display="flex" justifyContent="center" alignItems="center" gap={4}>
+          {/* Points */}
           <Card
             sx={{
-              width: 180,
+              width: 200,
+              height: 180,
               textAlign: "center",
-              backgroundColor: "#1c1c1c",
+              background: "rgba(255,255,255,0.08)",
+              backdropFilter: "blur(10px)",
               color: "#fff",
-              boxShadow: 3,
+              borderRadius: "24px",
+              border: "1px solid rgba(156,39,176,0.4)",
+              boxShadow: "0 0 25px rgba(156,39,176,0.25)",
               position: "relative",
-              overflow: "visible",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 2,
             }}
           >
-            <CardContent>
-              <Typography variant="h6" component="div" color="cyan">
-                Points
-              </Typography>
-              <GrowingTree />
-              <Typography variant="h5" component="div" sx={{ mt: 1 }}>
-                {user.points ?? "N/A"}
-              </Typography>
-            </CardContent>
+            <Typography
+              variant="h6"
+              sx={{ color: "#D1B3FF", fontWeight: 800, letterSpacing: "0.5px" }}
+            >
+              Points
+            </Typography>
+
+            <Typography
+              variant="h2"
+              sx={{
+                fontWeight: "bold",
+                color: "#fff",
+                textShadow: "0 0 12px rgba(156,39,176,0.8)",
+              }}
+            >
+              {user.points ?? "0"}
+            </Typography>
+
+            <Typography
+              variant="subtitle2"
+              sx={{ color: "#D1B3FF80", mt: 1 }}
+            >
+              Total earned points
+            </Typography>
           </Card>
-  
-          {/* Wallet Balance Section */}
+
+
+
+          {/* Wallet */}
           <Card
             sx={{
-              width: 180,
+              width: 200,
+              height: 180,
               textAlign: "center",
-              backgroundColor: "#1c1c1c",
+              background: "rgba(255,255,255,0.08)",
+              backdropFilter: "blur(10px)",
               color: "#fff",
-              boxShadow: 3,
+              borderRadius: "24px",
+              border: "1px solid rgba(156,39,176,0.4)",
+              boxShadow: "0 0 25px rgba(156,39,176,0.25)",
               position: "relative",
               overflow: "hidden",
-              height: "160px",
+              cursor: "pointer",
             }}
+            onClick={() => navigate("/withdrawl-money")}
           >
             {generateCoins()}
-            <CardContent style={{ position: "relative", zIndex: 2 }} sx={{ cursor: "pointer" }} onClick={() => navigate("/withdrawl-money")}>
-              <Typography variant="h6" component="div" color="cyan">
+            <CardContent
+              style={{ position: "relative", zIndex: 2 }}
+            >
+              <Typography variant="h6" sx={{ color: "#D1B3FF", fontWeight: 600 }}>
                 Wallet Balance
               </Typography>
-              <Typography
-                variant="h5"
-                component="div"
-              >
+              <Typography variant="h4" sx={{ fontWeight: "bold", mt: 1 }}>
                 ₹{user.walletBalance?.toFixed(2) ?? "0.00"}
               </Typography>
             </CardContent>
           </Card>
         </Box>
-  
-        {/* View Transactions Button */}
-        <div className="mt-16 mb-6 flex justify-center">
-          
+
+        {/* Transactions Button */}
+        <div className="mt-14 flex justify-center">
           <button
             onClick={() => navigate("/transactions")}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-lg font-semibold shadow-lg transition-all duration-300 ease-in-out"
+            className="px-10 py-3 rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white text-lg font-semibold shadow-lg hover:shadow-purple-500/50 transition-all duration-300 cursor-pointer"
           >
             View Your Transactions
           </button>
@@ -259,5 +294,4 @@ export default function UserProfile() {
       </div>
     </div>
   );
-  
 }
