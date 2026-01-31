@@ -2,13 +2,13 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
+import { logoutUser } from '../apis/authApi';
 
 const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Clear any authentication tokens or user data here
-    localStorage.clear(); 
+    logoutUser();
     navigate('/login');
   };
 

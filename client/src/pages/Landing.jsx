@@ -12,30 +12,10 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 
-export default function LandingPage() {
-
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [role, setRole] = useState("");
-
+export default function LandingPage({ isLoggedIn, role }) {
+  
     const location = useLocation();
 
-    useEffect(() => {
-      const token = localStorage.getItem("firebaseUID");
-      setIsLoggedIn(token);
-    }, [location]);
-
-
-    if(isLoggedIn){
-      const fetchUser = async () => {
-            try {
-              const user = await getMe();
-              setRole(user.role);
-            } catch (error) {
-              console.error("Error fetching user:", error);
-            }
-          };
-          fetchUser();
-    }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-800 text-white flex flex-col items-center justify-center p-8">
@@ -198,12 +178,12 @@ export default function LandingPage() {
             {!isLoggedIn ? (
                 <>
                 <Link to="/login">
-                    <button className="bg-yellow-600 text-white h-16 px-6 py-2 rounded-full shadow-md font-bold hover:bg-yellow-800 transition duration-300">
+                    <button className="bg-yellow-600 text-white h-16 px-6 py-2 rounded-full shadow-md font-bold hover:bg-yellow-800 transition duration-300 cursor-pointer">
                     Login
                     </button>
                 </Link>
                 <Link to="/signup">
-                    <button className="bg-green-600 text-white h-16 px-6 py-2 rounded-full shadow-md font-bold hover:bg-green-800 transition duration-300">
+                    <button className="bg-green-600 text-white h-16 px-6 py-2 rounded-full shadow-md font-bold hover:bg-green-800 transition duration-300 cursor-pointer">
                     Sign Up
                     </button>
                 </Link>
@@ -211,7 +191,7 @@ export default function LandingPage() {
             ) : (
                 <Link 
                 to={role === 'admin' ? "/admin-dashboard" : "/dashboard"}>
-                <button className="bg-purple-600 text-white h-16 px-8 py-2 rounded-full shadow-lg font-bold hover:bg-purple-700 transition duration-300">
+                <button className="bg-purple-600 text-white h-16 px-8 py-2 rounded-full shadow-lg font-bold hover:bg-purple-700 transition duration-300 cursor-pointer">
                     Go to Dashboard
                 </button>
                 </Link>
