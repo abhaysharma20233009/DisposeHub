@@ -1,27 +1,24 @@
 // models/contactModel.js
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const contactSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Name is required']
+const contactSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true, // one active cooldown per user
+    },
+    message: {
+      type: String,
+      required: true,
+    },
+    lastSentAt: {
+      type: Date,
+      required: true,
+    },
   },
-  email: {
-    type: String,
-    required: [true, 'Email is required']
-  },
-  role: {
-    type: String,
-  },
-  message: {
-    type: String,
-    required: [true, 'Message cannot be empty']
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  { timestamps: true }
+);
 
-const Contact = mongoose.model('Contact', contactSchema);
-export default Contact;
+export default mongoose.model("Contact", contactSchema);

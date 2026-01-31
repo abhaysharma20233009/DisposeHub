@@ -1,7 +1,7 @@
 import express from "express";
 import transactionController from "../controllers/transactionController.js";
 import walletController from "../controllers/walletController.js"
-import { protect, restrictTo } from "../controllers/authController.js";
+import { protect, restrictTo } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -11,13 +11,14 @@ router.get(
   transactionController.getMyTransactions
 );
 
+// User withdraws
 router.post(
   "/withdraw",
   protect,
   walletController.withdraw
 );
 
-
+//get all transactons for admin
 router.get(
   "/",
   protect,

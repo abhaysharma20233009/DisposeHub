@@ -1,112 +1,110 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 import { getMe } from "../../src/apis/userApi";
-const ContactBg = "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1470&q=80";
+import {
+  sendContactMessage,
+  getContactStatus,
+} from "../apis/contactApi";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+const ContactBg =
+  "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1470&q=80";
+
+const formatRemainingTime = (ms) => {
+  if (!ms || ms <= 0) return null;
+
+  const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((ms / (1000 * 60)) % 60);
+
+  return `${days}d ${hours}h ${minutes}m remaining before you can send another message.`;
+};
 
 const ContactForm = () => {
-  const [formData, setFormData] = useState({ message: '' });
-  const [status, setStatus] = useState('');
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sent, setSent] = useState(false);
-  const [cooldownRemaining, setCooldownRemaining] = useState(null);
 
-  const getRemainingTime = () => {
-    const sentTime = localStorage.getItem("contactMessageSentAt");
-    if (!sentTime) return null;
+  const [canSend, setCanSend] = useState(true);
+  const [remainingMs, setRemainingMs] = useState(0);
 
-    const fiveDays =  5 * 24 * 60 * 60 * 1000;
-    const now = Date.now();
-    const timeDiff = now - Number(sentTime);
-
-    if (timeDiff >= fiveDays) return null;
-
-    const remaining = fiveDays - timeDiff;
-    const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-
-    return `${days}d ${hours}h ${minutes}m remaining before you can send another message.`;
-  };
-
-  const fetchUser = async () => {
-    try {
-      const userData = await getMe();
-      setUser(userData);
-    } catch (error) {
-      console.log(error.message || "Error loading user data ❌");
-    } finally {
-      setLoading(false);
-    }
-  };
+  /* ================= INITIAL LOAD ================= */
 
   useEffect(() => {
-    fetchUser();
+    const init = async () => {
+      try {
+        const me = await getMe();
+        setUser(me);
 
-    const alreadySentBefore = localStorage.getItem("contactMessageAlreadySentBefore") === "true";
-    const remaining = getRemainingTime();
+        const contactStatus = await getContactStatus();
+        setCanSend(contactStatus.canSend);
+        setRemainingMs(contactStatus.remainingMs || 0);
+      } catch (err) {
+        console.error("Failed to load contact data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (alreadySentBefore && remaining) {
-      setSent(true);
-      setCooldownRemaining(remaining);
-    }
+    init();
   }, []);
 
+  /* ================= COOLDOWN TIMER ================= */
+
   useEffect(() => {
-    if (!sent) return;
+    if (canSend || remainingMs <= 0) return;
+
     const interval = setInterval(() => {
-      const remaining = getRemainingTime();
-      if (!remaining) {
-        setCooldownRemaining(null);
-        setSent(false); // Show form again
-      } else {
-        setCooldownRemaining(remaining);
-      }
-    }, 60000); // Check every minute
+      setRemainingMs((prev) => {
+        if (prev <= 60000) {
+          clearInterval(interval);
+          setCanSend(true);
+          return 0;
+        }
+        return prev - 60000;
+      });
+    }, 60000);
 
     return () => clearInterval(interval);
-  }, [sent]);
+  }, [canSend, remainingMs]);
 
-  const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  /* ================= SUBMIT ================= */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatus("");
 
     try {
-      const firebaseUID = localStorage.getItem("firebaseUID");
-      if (!firebaseUID) throw new Error("User UID not found in localStorage");
+      await sendContactMessage(message);
+      setStatus("✅ Message sent successfully!");
+      setMessage("");
 
-      const response = await fetch(`${API_BASE_URL}/contact/${firebaseUID.trim()}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setStatus('✅ Message sent successfully!');
-        setFormData({ message: '' });
-        setSent(true);
-
-        // Save timestamp and flag to distinguish first-time vs repeated visit
-        localStorage.setItem("contactMessageSentAt", Date.now().toString());
-        localStorage.setItem("contactMessageAlreadySentBefore", "true");
-
-        setCooldownRemaining(null); // Don't show countdown immediately
-      } else {
-        setStatus(`❌ Error: ${data.message}`);
-      }
-    } catch (error) {
-      setStatus('❌ Failed to send message. Try again later.');
+      const updatedStatus = await getContactStatus();
+      setCanSend(updatedStatus.canSend);
+      setRemainingMs(updatedStatus.remainingMs || 0);
+    } catch (err) {
+      setStatus(
+        err.response?.data?.message || "❌ Failed to send message"
+      );
     }
   };
+
+  /* ================= UI STATES ================= */
+
+  if (loading) {
+    return (
+      <p className="text-center mt-10 text-white">Loading...</p>
+    );
+  }
+
+  if (!user) {
+    return (
+      <p className="text-center mt-10 text-white">
+        Please login to contact us.
+      </p>
+    );
+  }
+
+  const cooldownText = formatRemainingTime(remainingMs);
 
   return (
     <div
@@ -114,50 +112,59 @@ const ContactForm = () => {
       style={{ backgroundImage: `url(${ContactBg})` }}
     >
       <div className="w-full max-w-xl bg-black/60 backdrop-blur-md rounded-3xl p-6 shadow-2xl text-white">
-        <h2 className="text-3xl font-bold text-cyan-400 mb-6 text-center">📨 Contact Us</h2>
+        <h2 className="text-3xl font-bold text-cyan-400 mb-6 text-center">
+          📨 Contact Us
+        </h2>
 
-        {sent ? (
-          cooldownRemaining ? (
-            <div className="text-center space-y-4">
-              <h3 className="text-xl font-semibold text-yellow-400">Message already received 📩</h3>
-              <p className="text-cyan-200">{cooldownRemaining}</p>
-              <p className="text-sm text-gray-400">You can send another message after the cooldown period.</p>
-            </div>
-          ) : (
-            <div className="text-center space-y-4">
-              <h3 className="text-2xl font-semibold text-green-400">Thank you! 🎉</h3>
-              <p className="text-gray-200">We’ve received your message. We'll get back to you soon.</p>
-            </div>
-          )
+        {/* USER INFO */}
+        <div className="text-center mb-4">
+          <p className="text-lg font-semibold text-cyan-200">
+            {user.name}
+          </p>
+          <p className="text-sm text-gray-300">{user.email}</p>
+        </div>
+
+        {/* COOLDOWN VIEW */}
+        {!canSend ? (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-semibold text-yellow-400">
+              Message received 📩
+            </h3>
+            <p className="text-cyan-200">{cooldownText}</p>
+            <p className="text-sm text-gray-400">
+              You can send another message after the cooldown period.
+            </p>
+          </div>
         ) : (
+          /* FORM */
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!loading && user && (
-              <div className="text-center">
-                <p className="text-lg font-semibold text-cyan-200">{user.name}</p>
-                <p className="text-sm text-gray-300">{user.email}</p>
-              </div>
-            )}
-
             <textarea
-              name="message"
               rows="5"
               placeholder="Write your message here..."
-              value={formData.message}
-              onChange={handleChange}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               required
               className="w-full p-4 rounded-xl bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
 
             <button
               type="submit"
-              className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded-xl font-semibold transition"
+              className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded-xl font-semibold transition cursor-pointer"
             >
               Send
             </button>
 
-            <p className={`text-sm mt-2 ${status.startsWith('✅') ? 'text-green-400' : 'text-red-400'}`}>
-              {status}
-            </p>
+            {status && (
+              <p
+                className={`text-sm mt-2 ${
+                  status.startsWith("✅")
+                    ? "text-green-400"
+                    : "text-red-400"
+                }`}
+              >
+                {status}
+              </p>
+            )}
           </form>
         )}
       </div>
