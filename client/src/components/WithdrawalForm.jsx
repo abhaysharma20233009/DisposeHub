@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { withdrawMoney } from '../apis/transactionAPI'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/v1";
 
-const WithdrawalForm = ({ onSubmit, onCancel, setBalance, setWithdrawRequest }) => {
+const WithdrawalForm = ({ onSubmit, onCancel}) => {
   const [formData, setFormData] = useState({
     name: '',
     account: '',
@@ -23,19 +24,6 @@ const WithdrawalForm = ({ onSubmit, onCancel, setBalance, setWithdrawRequest }) 
       return;
     }
     onSubmit(formData);
-    try {
-      const firebaseUID = localStorage.getItem("firebaseUID");
-      if (!firebaseUID) throw new Error("User UID not found");
-
-      const res = await axios.post(`${API_BASE_URL}/wallet/withdraw/${firebaseUID.trim()}`, formData, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      setBalance(res.data.walletBalance );
-      setWithdrawRequest(false);
-    } catch (err) {
-      console.error("Failed to submit withdrawal", err);
-    }
   };
 
   return (
@@ -66,14 +54,14 @@ const WithdrawalForm = ({ onSubmit, onCancel, setBalance, setWithdrawRequest }) 
       <div className="flex justify-between mt-4">
         <button
           type="submit"
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold"
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold cursor-pointer"
         >
           Submit
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold"
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold cursor-pointer"
         >
           Cancel
         </button>

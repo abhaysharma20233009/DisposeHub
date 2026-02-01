@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -8,19 +8,18 @@ import {
   Divider,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase/config";
-import { loginUser } from "../../apis/authApi"; // Backend API call
+import {connectSocket} from "../../socket/socket"
+import { loginUser } from "../../apis/authApi";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../redux/authSlice"; 
-import Lottie from "lottie-react"; // Import Lottie
+import Lottie from "lottie-react";
 import backgroundAnimation from "../../assets/animations/background-animation.json";
-import { Typewriter } from "react-simple-typewriter"; // Import Typewriter
-import GoogleIcon from "@mui/icons-material/Google"; //Import Google Icon
-import FacebookIcon from "@mui/icons-material/Facebook"; // Import Facebook Icon
-import { signInWithPopup } from "firebase/auth";
-import { googleProvider } from "../../firebase/config";
+import { Typewriter } from "react-simple-typewriter";
+import GoogleIcon from "@mui/icons-material/Google";
+import FacebookIcon from "@mui/icons-material/Facebook";
 import { getMe } from "../../apis/userApi";
+
+
 
 const LoginPage = () => {
   const [input, setInput] = useState({ email: "", password: "" });
@@ -30,77 +29,66 @@ const LoginPage = () => {
   const dispatch = useDispatch();
 
   const fetchUser = async () => {
+    const user = await getMe();
+
+    if (!user) {
+      return;
+    }
+
+    setRole(user.role);
+
+    if (user.role === "admin") {
+      navigate("/admin-dashboard");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const handleChange = (e) => {
+    setInput({ ...input, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
     try {
-      const user = await getMe();
-      setRole(user.role);
-      
+      const res = await loginUser({
+        email: input.email,
+        password: input.password,
+      });
+
+      const user = res.data.user;
+
+      dispatch(
+        loginSuccess({
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          avatar: user.avatar || "/default-avatar.png",
+          vehicleNumber: user.vehicleNumber || null,
+        })
+      );
+
+      connectSocket();
+
       if (user.role === "admin") {
         navigate("/admin-dashboard");
       } else {
         navigate("/dashboard");
       }
     } catch (error) {
-      console.error("Error fetching user:", error);
-    }
-  };
-
-  const handleChange = (e) => {
-    setInput({ ...input, [e.target.name]: e.target.value });
-  };
-
-  // Handle Login
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
-    try {
-      // Firebase Authentication (Login with Email & Password)
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        input.email,
-        input.password
-      );
-      const firebaseUser = userCredential.user;
-
-      // Send Firebase UID to the backend
-      await loginUser(firebaseUser.uid);
-
-      dispatch(
-        loginSuccess({
-          name: userCredential.name,
-          username: userCredential.username,
-          avatar: userCredential.avatar || "/default-avatar.png",
-        })
-      );
-      await fetchUser();
-    } catch (error) {
       console.error("Login error:", error.message);
-      setError("Invalid email or password. Please try again.");
+      setError(error.response?.data?.message || "Invalid credentials. Try again.");
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const googleUser = result.user;
-  
-      // Call your backend with the UID
-      await loginUser(googleUser.uid);
-  
-      dispatch(
-        loginSuccess({
-          name: googleUser.displayName,
-          avatar: googleUser.photoURL || "/default-avatar.png",
-        })
-      );
-  
-      console.log("Google Login successful!");
-      await fetchUser();
-    } catch (err) {
-      console.error("Google login error:", err.message);
-      setError("Google login failed. Please try again.");
-    }
-  };
-  
+    const handleGoogleLogin = () => {
+      window.location.href = "http://localhost:3000/api/auth/google";
+    };
 
   return (
     <Box
@@ -230,6 +218,18 @@ const LoginPage = () => {
           >
             Login
           </Button>
+          <Typography
+            variant="body2"
+            sx={{
+              textAlign: "right",
+              color: "#ffffff",
+              cursor: "pointer",
+              mt: 1,
+            }}
+            onClick={() => navigate("/forgot-password")}
+          >
+            Forgot password?
+          </Typography>
         </form>
 
         <Typography variant="body2" sx={{ mt: 2, color: "#ffffff" }}>

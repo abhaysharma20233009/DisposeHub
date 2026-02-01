@@ -5,14 +5,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import { FaBell } from "react-icons/fa";
 import NotificationDropdown from "./Notification";
+import { logoutUser } from '../apis/authApi';
 const Navbar = ({role}) => {
   const navigate = useNavigate();
   const [isBellOpen, setIsBellOpen] = useState(false);
   const [data, setData] = useState(0);
   const toggleNotificationBell = () => setIsBellOpen(!isBellOpen);
   const handleLogout = () => {
-    // Clear any authentication tokens or user data here
-    localStorage.clear(); 
+    logoutUser();
     navigate('/login');
   };
   const handleDataFromChild = (childData) => {

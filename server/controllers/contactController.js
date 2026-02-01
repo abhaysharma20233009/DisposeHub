@@ -1,40 +1,83 @@
-// controllers/contactController.js
 import Contact from '../models/contactModel.js';
-import User from '../models/userModel.js';
+import AppError from "../utils/appError.js";
+import catchAsync from "../utils/catchAsync.js";
 
-export const submitContactForm = async (req, res, next) => {
-  try {
-    const {uid}=req.params;
-    const user=await User.findOne({firebaseUID:uid.trim()});
-    
-    const { message } = req.body;
-    if ( !message) {
-      return res.status(400).json({
-        status: 'fail',
-        message: 'Please Enter your message'
-      });
+const COOLDOWN_DAYS = 5;
+
+export const sendContactMessage = catchAsync(async (req, res, next) => {
+  const { message } = req.body;
+  const userId = req.user.id;
+
+  if (!message) {
+    return next(new AppError("Message is required", 400));
+  }
+
+  const now = new Date();
+  const cooldownMs = COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+
+  const existing = await Contact.findOne({ user: userId });
+
+  if (existing) {
+    const diff = now - existing.lastSentAt;
+
+    if (diff < cooldownMs) {
+      const remaining = cooldownMs - diff;
+      return next(
+        new AppError(
+          `Please wait ${Math.ceil(remaining / (1000 * 60 * 60))} hours before sending another message`,
+          429
+        )
+      );
     }
-    if(!user){
-      return res.stuts(404).json({
-        ststus:"fail",
-        message:"user not found"
-      })
-    }
 
-    const newContact = await Contact.create({ name:user.name, email:user.email, role: user.role, message, });
-
-    res.status(201).json({
-      status: 'success',
-      message: 'Message sent successfully!',
-      data: newContact
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: 'error',
-      message: 'Something went wrong'
+    existing.message = message;
+    existing.lastSentAt = now;
+    await existing.save();
+  } else {
+    await Contact.create({
+      user: userId,
+      message,
+      lastSentAt: now,
     });
   }
-};
+
+  res.status(200).json({
+    status: "success",
+    message: "Message sent successfully",
+  });
+});
+
+
+export const getContactStatus = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+
+  const existing = await Contact.findOne({ user: userId });
+
+  if (!existing) {
+    return res.status(200).json({
+      canSend: true,
+      remainingMs: 0,
+    });
+  }
+
+  const cooldownMs = COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const diff = now - existing.lastSentAt.getTime();
+
+  if (diff >= cooldownMs) {
+    return res.status(200).json({
+      canSend: true,
+      remainingMs: 0,
+    });
+  }
+
+  res.status(200).json({
+    canSend: false,
+    remainingMs: cooldownMs - diff,
+  });
+});
+
+
 
 export const getAllContacts = async (req, res) => {
   try {

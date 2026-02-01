@@ -2,31 +2,25 @@ import { urlencoded } from "express";
 import Location from "../models/locationModel.js";
 import User from "../models/userModel.js";
 import Notification from "../models/notificationModel.js";
+
 export const saveLocation = async (req, res) => {
   try {
-    const { firebaseUID, name, lat, long, active } = req.body;
-    console.log(req.body);
+    const userId = req.user._id;
+    const {lat, lng, locationName , active } = req.body;
 
-    if (!firebaseUID || lat === undefined || long === undefined || active === undefined) {
+    if (lat === undefined || lng === undefined || active === undefined) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    let location = await Location.findOne({ firebaseUID });
-
-    if (location) {
-      location.lat = lat;
-      location.long = long;
-      location.active = active;
-      await location.save();
-      return res.status(200).json({ success: true, message: 'Location updated successfully', location });
-    }
-
-    location = new Location({ firebaseUID, name, lat, long, active });
-    console.log("location", location);
-    await location.save();
-    console.log(location);
+    const location = await Location.create({
+      markedBy: userId,
+      lat,
+      long:lng,
+      locationName,
+      active,
+    });
     
-    return res.status(201).json({ success: true, message: 'Location saved successfully', location });
+    return res.status(201).json({ success: true, message: 'Garbage location marked successfully', location });
   } catch (error) {
     console.error("Error saving location:", error);
     return res.status(500).json({ success: false, message: 'Error saving location', error: error.message });

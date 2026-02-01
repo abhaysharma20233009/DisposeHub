@@ -24,6 +24,11 @@ import Navbar from "./components/websiteNavbar";
 import AdminDashboard from "./pages/adminPages/adminDashboard";
 import ContactMessages from "./pages/contactMessages";
 import AdminTransactions from "./pages/AdminTransactions";
+import AuthCallback from "./auth/AuthCallback";
+import ResetPassword from './components/ResetPassword';
+import ForgotPassword from './components/ForgotPassword';
+
+
 
 function App() {
   const location = useLocation();
@@ -92,32 +97,14 @@ function App() {
       {!hideNavbar && <Navbar role={role} />}
 
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<LandingPage role={role} isLoggedIn={!!role}/>} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
-        <Route
-          path="/driver"
-          element={
-            <DriverIntegrate
-              role={role}
-              name={name}
-              garbageDumps={garbageDumps}
-            />
-          }
-        />
-
-        <Route
-          path="/map"
-          element={
-            <Integrate
-              role={role}
-              name={name}
-              garbageDumps={garbageDumps}
-            />
-          }
-        />
-
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/driver" element={<DriverIntegrate role={role} name={name} garbageDumps={garbageDumps} />} />
+        <Route path="/map" element={<Integrate role={role} name={name} garbageDumps={garbageDumps} />} />
         <Route path="/leader-board" element={<Leaderboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/editProfile" element={<EditUserProfile />} />

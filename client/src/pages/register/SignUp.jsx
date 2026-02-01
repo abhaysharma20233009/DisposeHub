@@ -20,14 +20,14 @@ import {
   Google as GoogleIcon,
   Facebook as FacebookIcon,
 } from "@mui/icons-material";
-import { createUserWithEmailAndPassword,GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../firebase/config";
+
 import { signupUser } from "../../apis/authApi";
 import Lottie from "lottie-react";
 import backgroundAnimation from "../../assets/animations/background-animation.json";
 import { Typewriter } from "react-simple-typewriter";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../redux/authSlice";
+import {connectSocket} from "../../socket/socket"
 
 const SignupPage = () => {
   const [input, setInput] = useState({
@@ -51,75 +51,35 @@ const SignupPage = () => {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        input.email,
-        input.password
-      );
-      const firebaseUser = userCredential.user;
-
-      await signupUser({
-        firebaseUID: firebaseUser.uid,
+      const res = await signupUser({
         name: input.name,
         email: input.email,
+        password: input.password,
+        passwordConfirm: input.confirmPassword,
         role: input.role,
         vehicleNumber: input.role === "driver" ? input.vehicleNumber : undefined,
       });
 
+      const user = res.data.user;
       dispatch(
         loginSuccess({
-          uid: firebaseUser.uid,
-          name: input.name,
-          email: input.email,
-          role: input.role,
-          vehicleNumber: input.role === "driver" ? input.vehicleNumber : undefined,
-          avatar: userCredential.avatar || "/default-avatar.png",
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          vehicleNumber: user.vehicleNumber || null,
+          avatar: user.avatar || "/default-avatar.png",
         })
       );
-
+      connectSocket();
       navigate("/dashboard");
-    } catch (error) {
-      if (auth.currentUser) {
-        await auth.currentUser.delete();
-      }
-      console.error("Signup error:", error.message);
-      alert("Signup failed. Please try again.");
+    } catch (err) {
+      console.error("Signup error:", err.message);
+      alert(err.message);
     }
   };
-  
-  const handleGoogleSignup = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
 
-      await signupUser({
-        firebaseUID: user.uid,
-        name: user.displayName,
-        email: user.email,
-        role: "user",
-      });
-
-      // Dispatch login success
-      dispatch(
-        loginSuccess({
-          uid: user.uid,
-          name: user.displayName,
-          email: user.email,
-          role: "user",
-        })
-      );
-
-      // Navigate to home/dashboard
-      navigate("/dashboard");
-
-    } catch (error) {
-      console.error("Google Sign-in error:", error.message);
-      if (auth.currentUser) {
-        await auth.currentUser.delete();
-      }
-      alert("Failed to sign in with Google. Please try again.");
-    }
+  const handleGoogleSignup = () => {
+    window.location.href = "http://localhost:3000/api/auth/google";
   };
 
 

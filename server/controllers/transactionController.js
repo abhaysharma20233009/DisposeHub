@@ -1,31 +1,52 @@
-import Transaction from '../models/transactionModel.js';
-import User from '../models/userModel.js';
+import Transaction from "../models/transactionModel.js";
 
 const transactionController = {
-  getTransactions: async (req, res) => {
+
+  // GET logged-in user's transactions
+
+  getMyTransactions: async (req, res) => {
     try {
-      const user = await User.findOne({ firebaseUID: req.params.firebaseUID });
-      if (!user) return res.status(404).json({ message: 'User not found' });
-  
-      const transactions = await Transaction.find({ user: user._id }).sort({ date: -1 });
-      res.status(200).json({ transactions });
+      const transactions = await Transaction.find({
+        user: req.user._id,
+      }).sort({ date: -1 });
+
+      res.status(200).json({
+        status: "success",
+        results: transactions.length,
+        data: {
+          transactions,
+        },
+      });
     } catch (err) {
-      res.status(500).json({ error: 'Server error' });
+      res.status(500).json({
+        status: "error",
+        message: "Error fetching transactions",
+      });
     }
   },
+
+  // GET all transactions (admin / dashboard)
 
   getAllTransactions: async (req, res) => {
     try {
       const transactions = await Transaction.find({ user: { $ne: null } })
-        .populate('user', 'name email') // get name and email from User
-        .sort({ date: -1 }); // latest first
-      res.status(200).json({ transactions });
+        .populate("user", "name email")
+        .sort({ date: -1 });
+
+      res.status(200).json({
+        status: "success",
+        results: transactions.length,
+        data: {
+          transactions,
+        },
+      });
     } catch (err) {
-      res.status(500).json({ message: "Error fetching transactions" });
+      res.status(500).json({
+        status: "error",
+        message: "Error fetching all transactions",
+      });
     }
-  }
-} 
-
-
+  },
+};
 
 export default transactionController;
