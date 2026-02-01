@@ -1,58 +1,145 @@
 import React, { useState } from 'react';
-import Navbar from '../../components/navbar';
+import { useNavigate } from 'react-router-dom'; // ✅ import navigate
 import LeafletMap from '../../components/LeafletMap';
-import { Box, Paper, Typography } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  TextField,
+  Divider,
+} from '@mui/material';
 import { styled } from '@mui/system';
 
-// Styled sidebar
+/* =======================
+   Sidebar
+======================= */
 const Sidebar = styled(Paper)(({ theme }) => ({
-  width: '260px',
+  width: '20%',
+  minWidth: '200px',
+  maxWidth: '300px',
   height: '100vh',
+
   background: 'linear-gradient(180deg, #2E3B55 0%, #1F2A40 100%)',
   color: '#fff',
+
   display: 'flex',
   flexDirection: 'column',
+
+  padding: theme.spacing(2),
   boxShadow: '4px 0 12px rgba(0,0,0,0.15)',
-  paddingTop: theme.spacing(4),
-  paddingLeft: theme.spacing(3),
-  transition: 'width 0.3s',
   borderTopRightRadius: '24px',
   borderBottomRightRadius: '24px',
-  overflow: 'hidden',
+
+  flexShrink: 0,
 }));
 
-// Styled map container
+/* =======================
+   Sidebar Elements
+======================= */
+const SidebarTitle = styled(Typography)(({ theme }) => ({
+  fontSize: '22px',
+  fontWeight: 700,
+  textAlign: 'center',
+  marginBottom: theme.spacing(3),
+}));
+
+const SidebarButton = styled(Button)(({ theme }) => ({
+  justifyContent: 'flex-start',
+  textTransform: 'none',
+  fontSize: '16px',
+  padding: theme.spacing(1.5, 2),
+  borderRadius: '12px',
+  color: '#fff',
+
+  '&:hover': {
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+}));
+
+/* =======================
+   Map Container
+======================= */
 const MapContainer = styled(Paper)(({ theme }) => ({
   flex: 1,
   margin: theme.spacing(2),
-  marginLeft: theme.spacing(1),
-  backgroundColor: '#ffffff',
   padding: theme.spacing(2),
+
   height: 'calc(100vh - 32px)',
   borderRadius: '24px',
+
+  backgroundColor: '#ffffff',
   boxShadow: '0px 4px 30px rgba(0, 0, 0, 0.1)',
   overflow: 'hidden',
+
   display: 'flex',
   flexDirection: 'column',
 }));
 
-// Styled title
-const NavbarTitle = styled(Typography)(({ theme }) => ({
-  fontSize: '22px',
-  fontWeight: 'bold',
-  marginBottom: theme.spacing(5),
-  textAlign: 'center',
-  color: '#ffffff',
-}));
-
+/* =======================
+   Main Component
+======================= */
 function Integrate({ role, name, garbageDumps }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const navigate = useNavigate(); // ✅ add navigate
 
   return (
-    <Box className="flex h-screen bg-gradient-to-br from-gray-100 to-blue-100">
-     
-      <Navbar onSelectLocation={setSelectedLocation} />
+    <Box
+      sx={{
+        display: 'flex',
+        height: '100vh',
+        background: 'linear-gradient(to bottom right, #f3f4f6, #dbeafe)',
+      }}
+    >
+      <Sidebar elevation={3}>
+        <SidebarTitle
+          onClick={() => navigate('/')} // ✅ DisposeHub click redirects to home
+          sx={{ cursor: 'pointer' }}
+        >
+          DisposeHub
+        </SidebarTitle>
 
+        <TextField
+          placeholder="Search location..."
+          size="small"
+          variant="outlined"
+          fullWidth
+          sx={{
+            mb: 3,
+            input: { color: '#fff' },
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '12px',
+              '& fieldset': {
+                borderColor: 'rgba(255,255,255,0.3)',
+              },
+              '&:hover fieldset': {
+                borderColor: '#fff',
+              },
+            },
+          }}
+        />
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <SidebarButton onClick={() => navigate('/')}>Home</SidebarButton>
+          <SidebarButton onClick={() => navigate('/dashboard')}>Dashboard</SidebarButton>
+        </Box>
+
+        <Divider sx={{ my: 2, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+
+        <Box sx={{ mt: 'auto' }}>
+          <SidebarButton
+            color="error"
+            onClick={() => {
+              localStorage.clear(); // ✅ clear storage
+              navigate('/login');   // ✅ redirect to login
+            }}
+          >
+            Logout
+          </SidebarButton>
+        </Box>
+      </Sidebar>
+
+      {/* ===== MAP ===== */}
       <MapContainer elevation={4}>
         <LeafletMap
           user={{ role, name }}

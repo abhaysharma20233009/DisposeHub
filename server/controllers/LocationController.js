@@ -52,6 +52,7 @@ export const deactivateLocation = async (req, res) => {
       { new: true }
     );
 
+    emitBinThrown(id);
     // Check if location exists before accessing its fields
     if (!location) {
       return res.status(404).json({ message: 'Location not found' });

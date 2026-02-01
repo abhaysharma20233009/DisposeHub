@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const locationSchema = new mongoose.Schema({
+  name: { type: String, unique: true },
   markedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
