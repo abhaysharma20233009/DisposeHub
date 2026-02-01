@@ -4,7 +4,7 @@ import User from "../models/userModel.js";
 import Notification from "../models/notificationModel.js";
 export const saveLocation = async (req, res) => {
   try {
-    const { firebaseUID, lat, long, active } = req.body;
+    const { firebaseUID, name, lat, long, active } = req.body;
     console.log(req.body);
 
     if (!firebaseUID || lat === undefined || long === undefined || active === undefined) {
@@ -21,7 +21,7 @@ export const saveLocation = async (req, res) => {
       return res.status(200).json({ success: true, message: 'Location updated successfully', location });
     }
 
-    location = new Location({ firebaseUID, lat, long, active });
+    location = new Location({ firebaseUID, name, lat, long, active });
     console.log("location", location);
     await location.save();
     console.log(location);
@@ -58,6 +58,7 @@ export const deactivateLocation = async (req, res) => {
       { new: true }
     );
 
+    emitBinThrown(id);
     // Check if location exists before accessing its fields
     if (!location) {
       return res.status(404).json({ message: 'Location not found' });

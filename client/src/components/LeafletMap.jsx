@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import io from 'socket.io-client';
 import L from 'leaflet';
 
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -15,6 +14,19 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
+function getAreaCode(lat, lng) {
+  if (lat > 28 && lng > 76 && lng < 78) return "DEL";
+  if (lat > 18 && lat < 20 && lng > 72 && lng < 73) return "MUM";
+  if (lat > 12 && lat < 14 && lng > 77 && lng < 78) return "BLR";
+  return "GEN";
+}
+
+function generateDustbinName(lat, lng) {
+  const area = getAreaCode(lat, lng);
+  const seq = Date.now().toString().slice(-4); // last 4 digits
+  return `GB-IND-${area}-${seq}`;
+}
+
 const userIcon = (color = 'blue') =>
   new L.Icon({
     iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
@@ -26,21 +38,13 @@ const userIcon = (color = 'blue') =>
     shadowSize: [41, 41],
   });
 
-  const greenIcon = new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-    shadowUrl: markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  });
-  
-// Custom garbage icon
-const garbageIcon = new L.Icon({
-  iconUrl: 'https://cdn-icons-png.flaticon.com/512/484/484613.png',
-  iconSize: [30, 30],
-  iconAnchor: [15, 30],
-  popupAnchor: [1, -30],
+const greenIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 });
 
 const RecenterMap = ({ lat, lng }) => {
@@ -65,17 +69,6 @@ const MapClickHandler = ({ onClick }) => {
 const CurrentLocationButton = ({ onSetLocation }) => {
   const map = useMap();
   const controlRef = useRef(null);
-  const socket = useRef(null); 
-
-  useEffect(() => {
-    socket.current = io('http://localhost:3000');
-
-    return () => {
-      if (socket.current) {
-        socket.current.disconnect();
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (controlRef.current) return;
@@ -90,11 +83,65 @@ const CurrentLocationButton = ({ onSetLocation }) => {
     button.style.cursor = 'pointer';
 
     button.onclick = () => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const lat = position.coords.latitude;
-              const lng = position.coords.longitude;
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            try {
+              // Try to get location name using reverse geocoding
+              const response = await fetch(
+                `https://api.openrouteservice.org/geocode/reverse?api_key=5b3ce3597851110001cf6248976fd365a133423bab235324a680ada8&point.lat=${lat}&point.lon=${lng}`
+              );
+              const data = await response.json();
+              const name = data.features?.[0]?.properties?.name || 'My Current Location';
+              
+              const location = {
+                lat,
+                lng,
+                name,
+              };
+              
+              // Call the parent's onSetLocation
+              onSetLocation(location);
+              
+              // Save to backend
+              const firebaseUID = localStorage.getItem("firebaseUID");
+              if (firebaseUID) {
+                const generatedName = generateDustbinName(lat, lng);
+                
+                await fetch("http://localhost:3000/api/location/save", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    firebaseUID,
+                    name: generatedName,
+                    lat,
+                    long: lng,
+                    active: true,
+                  }),
+                })
+                  .then((response) => response.json())
+                  .then((data) => {
+                    if (data.success) {
+                      console.log("Location saved:", data.location.name);
+                      alert(`Location marked as: ${generatedName}`);
+                    } else {
+                      console.error("Failed:", data.message);
+                    }
+                  })
+                  .catch((error) => {
+                    console.error("Backend error:", error);
+                  });
+              } else {
+                console.log("Firebase UID not found.");
+                alert("Please login again. Firebase UID not found.");
+              }
+            } catch (error) {
+              console.error('Reverse geocoding failed:', error);
               const location = {
                 lat,
                 lng,
@@ -102,56 +149,23 @@ const CurrentLocationButton = ({ onSetLocation }) => {
               };
               
               onSetLocation(location);
-      
-              if (socket.current) {
-                socket.current.emit('location', { lat, lng });
-              }
-      
-              const firebaseUID = localStorage.getItem("firebaseUID");
-      
-              if (firebaseUID) {
-                fetch("http://localhost:3000/api/location/save", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    firebaseUID,
-                    lat,
-                    long: lng,
-                    active: true, 
-                  }),
-                })
-                  .then((response) => response.json())
-                  .then((data) => {
-                    if (data.success) {
-                      console.log("Location saved successfully:", data.location);
-                    } else {
-                      console.error("Failed to save location:", data.message);
-                    }
-                  })
-                  .catch((error) => {
-                    console.error("Error sending location to backend:", error);
-                  });
-              } else {
-                console.log("Firebase UID not found in localStorage.");
-              }
-            },
-            (error) => {
-              console.error('Geolocation error:', error);
-              alert('Failed to get your current location.');
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 0,
             }
-          );
-        } else {
-          alert('Geolocation is not supported by this browser.');
-        }
-      };
-      
+          },
+          (error) => {
+            console.error('Geolocation error:', error);
+            alert('Failed to get your current location.');
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          }
+        );
+      } else {
+        alert('Geolocation is not supported by this browser.');
+      }
+    };
+    
     const control = L.control({ position: 'topright' });
     control.onAdd = () => button;
     control.addTo(map);
@@ -162,7 +176,6 @@ const CurrentLocationButton = ({ onSetLocation }) => {
 };
 
 const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
-  const [users, setUsers] = useState({});
   const [myLocation, setMyLocation] = useState(null);
   const [clickedLocation, setClickedLocation] = useState(null);
   const [pathPositions, setPathPositions] = useState([]);
@@ -174,16 +187,13 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           setMyLocation({ lat, lng });
-          socket.emit('location', { lat, lng });
         },
         (error) => {
           console.error("Geolocation error:", error.message);
-
           // Default to MNNIT Prayagraj
           const lat = 25.4745;
           const lng = 81.8787;
           setMyLocation({ lat, lng });
-          socket.emit('location', { lat, lng });
         },
         {
           enableHighAccuracy: true,
@@ -196,18 +206,11 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
   
     if (user?.role !== 'user') return;
 
-    const socket = io('http://localhost:3000');
-
     updateLocation();
     const interval = setInterval(updateLocation, 20000);
 
-    socket.on('users-locations', (data) => {
-      setUsers(data);
-    });
-
     return () => {
       clearInterval(interval);
-      socket.disconnect();
     };
   }, [user]);
 
@@ -239,6 +242,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
         const firebaseUID = localStorage.getItem("firebaseUID");
   
         if (firebaseUID) {
+          const name = generateDustbinName(lat, lng);
           await fetch("http://localhost:3000/api/location/save", {
             method: "POST",
             headers: {
@@ -246,6 +250,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
             },
             body: JSON.stringify({
               firebaseUID,
+              name,
               lat,
               long: lng,
               active: true, 
@@ -255,6 +260,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
             .then((data) => {
               if (data.success) {
                 console.log("Location saved successfully:", data.location);
+                alert(`Location saved as: ${name}`);
               } else {
                 console.error("Failed to save location:", data.message);
               }
@@ -264,6 +270,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
             });
         } else {
           console.log("Firebase UID not found in localStorage.");
+          alert("Please login again. Firebase UID not found.");
         }
       }
   
@@ -281,6 +288,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
         const firebaseUID = localStorage.getItem("firebaseUID");
   
         if (firebaseUID) {
+          const name = generateDustbinName(lat, lng);
           await fetch("http://localhost:3000/api/location/save", {
             method: "POST",
             headers: {
@@ -288,6 +296,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
             },
             body: JSON.stringify({
               firebaseUID,
+              name,
               lat,
               long: lng,
               active: true,
@@ -297,6 +306,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
             .then((data) => {
               if (data.success) {
                 console.log("Location saved successfully:", data.location);
+                alert(`Location saved as: ${name}`);
               } else {
                 console.error("Failed to save location:", data.message);
               }
@@ -306,6 +316,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
             });
         } else {
           console.log("Firebase UID not found in localStorage.");
+          alert("Please login again. Firebase UID not found.");
         }
       }
     }
@@ -348,7 +359,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
     <div className="w-full h-full">
       <MapContainer
         center={[myLocation.lat, myLocation.lng]}
-        zoom={16}
+        zoom={14}
         style={{ height: '100%', width: '100%' }}
       >
         <MapClickHandler onClick={handleMapClick} />
@@ -377,6 +388,15 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
           />
         )}
 
+        {myLocation && (
+          <Marker
+            position={[myLocation.lat, myLocation.lng]}
+            icon={userIcon('red')}
+          >
+            <Popup>My Current Location</Popup>
+          </Marker>
+        )}
+
         {selectedLocation && (
           <RecenterMap lat={selectedLocation.lat} lng={selectedLocation.lng} />
         )}
@@ -392,24 +412,14 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
                   handleMarkerClick(dump);
               }
           }}
-      >
+        >
           <Popup>
-              <div>
-                  <strong>{dump.name || 'Garbage Dump'}</strong>
-                  {dump.address && <p>{dump.address}</p>}
-              </div>
+            <div>
+              <strong>{dump.name || 'Garbage Dump'}</strong>
+              {dump.address && <p>{dump.address}</p>}
+            </div>
           </Popup>
-      </Marker>
-        ))}
-
-        {Object.entries(users).map(([id, loc], index) => (
-          <Marker
-            key={id}
-            position={[loc.lat, loc.lng]}
-            icon={userIcon(index % 2 === 0 ? 'blue' : 'red')}
-          >
-            <Popup>User ID: {id}</Popup>
-          </Marker>
+        </Marker>
         ))}
 
         {clickedLocation && (

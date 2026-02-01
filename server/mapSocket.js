@@ -1,10 +1,9 @@
-// socket.js
-import { Server } from "socket.io"
-
 let users = {};
+let ioInstance = null;
 
 const initSocket = (io) => {
-  
+  ioInstance = io; // 🔑 save reference
+
   io.on("connection", (socket) => {
     console.log("🔌 New user connected:", socket.id);
 
@@ -19,8 +18,13 @@ const initSocket = (io) => {
       io.emit("users-locations", users);
     });
   });
+};
 
-  return io;
+// ✅ emit bin thrown from anywhere
+export const emitBinThrown = (id) => {
+  if (ioInstance) {
+    ioInstance.emit("bin-thrown", { id });
+  }
 };
 
 export default initSocket;
