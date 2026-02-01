@@ -81,7 +81,7 @@ const MapContainer = styled(Paper)(({ theme }) => ({
 ======================= */
 function Integrate({ role, name, garbageDumps }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const navigate = useNavigate(); // ✅ add navigate
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -93,7 +93,7 @@ function Integrate({ role, name, garbageDumps }) {
     >
       <Sidebar elevation={3}>
         <SidebarTitle
-          onClick={() => navigate('/')} // ✅ DisposeHub click redirects to home
+          onClick={() => navigate('/')}
           sx={{ cursor: 'pointer' }}
         >
           DisposeHub
