@@ -3,8 +3,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 
-import socket from "./socket";
-
 // Pages and Components
 import LeafletMap from "./components/LeafletMap";
 import Login from "./pages/register/Login";
@@ -16,8 +14,8 @@ import LandingPage from "./pages/Landing";
 import ContactUsPage from "./pages/ContactUsPage";
 import Integrate from "./pages/GeneralUser/Integrate";
 import { Wallet } from "./components/Wallet";
-import UserProfile from "./pages/register/profile/profile";
-import EditUserProfile from "./pages/register/profile/editProfile";
+import UserProfile from "./pages/profile/profile";
+import EditUserProfile from "./pages/profile/editProfile";
 import TransactionsPage from "./pages/TransactionPage";
 import { getMe } from "./apis/userApi";
 import Navbar from "./components/websiteNavbar";
@@ -78,19 +76,6 @@ function App() {
     fetchGarbageDumps();
   }, []);
 
-  // 🔥 REAL-TIME SOCKET LISTENER
-  useEffect(() => {
-    socket.on("bin-thrown", ({ id }) => {
-      setGarbageDumps((prev) => ({
-        ...prev,
-        data: prev.data.filter((dump) => dump._id !== id),
-      }));
-    });
-
-    return () => {
-      socket.off("bin-thrown");
-    };
-  }, []);
 
   return (
     <>

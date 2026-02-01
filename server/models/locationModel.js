@@ -1,15 +1,10 @@
 import mongoose from 'mongoose';
 
 const locationSchema = new mongoose.Schema({
-<<<<<<< HEAD
   name: { type: String, unique: true },
-  firebaseUID: {
-    type: String,
-=======
   markedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
->>>>>>> main
     required: true,
   },
   lat: {
