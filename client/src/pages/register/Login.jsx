@@ -70,6 +70,8 @@ const LoginPage = () => {
           role: user.role,
           avatar: user.avatar || "/default-avatar.png",
           vehicleNumber: user.vehicleNumber || null,
+          points: user.points || 0,
+          walletBalance: user.walletBalance || 0,
         })
       );
 
