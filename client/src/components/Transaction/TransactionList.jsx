@@ -1,4 +1,3 @@
-// src/components/Transaction/TransactionList.jsx
 import TransactionItem from './TransactionItem';
 
 const TransactionList = ({ transactions }) => {
