@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 
 const locationSchema = new mongoose.Schema({
-  firebaseUID: {
-    type: String,
+  markedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
-    unique: true,
   },
   lat: {
     type: Number,
@@ -13,6 +13,9 @@ const locationSchema = new mongoose.Schema({
   long: {
     type: Number,
     required: true,
+  },
+  locationName: {
+    type: String,
   },
   active: {
     type: Boolean,
