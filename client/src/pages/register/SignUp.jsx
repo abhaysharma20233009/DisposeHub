@@ -61,7 +61,6 @@ const SignupPage = () => {
       });
 
       const user = res.data.user;
-      console.log("user : ", user);
       dispatch(
         loginSuccess({
           name: user.name,

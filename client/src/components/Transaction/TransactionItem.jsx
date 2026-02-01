@@ -1,4 +1,3 @@
-// src/components/Transaction/TransactionItem.jsx
 const TransactionItem = ({ txn }) => {
   const isWithdrawal = txn.type === "withdrawal";
   const amountColor = isWithdrawal ? "text-red-400" : "text-green-400";
@@ -10,10 +9,9 @@ const TransactionItem = ({ txn }) => {
     <div
       className={`relative bg-gradient-to-br from-gray-900 via-gray-800 to-black border ${gradientBorder} backdrop-blur-md rounded-2xl p-5 shadow-lg flex justify-between items-center transition-transform hover:scale-[1.02] duration-300`}
     >
-      {/* Decorative glowing circle */}
+      
       <div className="absolute -top-2 -left-2 w-4 h-4 bg-cyan-400 rounded-full blur-md animate-ping opacity-50" />
 
-      {/* Transaction Info */}
       <div>
         <h3 className="text-xl font-semibold capitalize text-cyan-400">
           {txn.type}
@@ -23,7 +21,6 @@ const TransactionItem = ({ txn }) => {
         </p>
       </div>
 
-      {/* Amount */}
       <div className={`text-xl font-bold ${amountColor}`}>
         ₹{txn.amount.toFixed(2)}
       </div>
