@@ -12,13 +12,19 @@ export const saveLocation = async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    const location = await Location.create({
-      markedBy: userId,
-      lat,
-      long:lng,
-      locationName,
-      active,
-    });
+    const location = await Location.findOneAndUpdate(
+      { markedBy: userId },
+      {
+        lat,
+        long: lng,
+        locationName,
+        active,
+      },
+      {
+        new: true,
+        upsert: true,
+      }
+    );
     
     return res.status(201).json({ success: true, message: 'Garbage location marked successfully', location });
   } catch (error) {

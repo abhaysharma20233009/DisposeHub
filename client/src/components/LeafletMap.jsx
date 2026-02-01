@@ -249,7 +249,6 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
     onMapClick(location);
     try {
       const result = await savePickupLocation (location);
-      console.log("Pickup location saved:", result);
     } catch (error) {
       console.error("Failed to save pickup location:", error.message);
     }
