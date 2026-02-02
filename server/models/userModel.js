@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
   passwordConfirm: {
     type: String,
     required: function () {
-      return this.provider === "local";
+      return this.provider === "local" && this.isNew;;
     },
     validate: {
       validator: function (el) {

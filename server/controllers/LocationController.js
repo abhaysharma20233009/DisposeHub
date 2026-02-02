@@ -1,99 +1,158 @@
-import { urlencoded } from "express";
+import AppError from "../utils/appError.js";
+import catchAsync from "../utils/catchAsync.js";
 import Location from "../models/locationModel.js";
 import User from "../models/userModel.js";
 import Notification from "../models/notificationModel.js";
+import Transaction from "../models/transactionModel.js";
 
-export const saveLocation = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const {lat, lng, locationName , active } = req.body;
 
-    if (lat === undefined || lng === undefined || active === undefined) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
+export const saveLocation = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const { lat, lng, locationName, active } = req.body;
+
+  if (lat === undefined || lng === undefined || active === undefined) {
+    return next(new AppError("Missing required fields", 400));
+  }
+
+  const location = await Location.findOneAndUpdate(
+    { markedBy: userId },
+    {
+      lat,
+      long: lng,
+      locationName,
+      active,
+      markedBy: userId,
+    },
+    {
+      new: true,
+      upsert: true,
+      runValidators: true,
     }
+  );
 
-    const location = await Location.findOneAndUpdate(
-      { markedBy: userId },
-      {
-        lat,
-        long: lng,
-        locationName,
-        active,
+  res.status(201).json({
+    success: true,
+    message: "Garbage location marked successfully",
+    location,
+  });
+});
+
+export const getActiveLocations = catchAsync(async (req, res, next) => {
+  const locations = await Location.find({ active: true });
+
+  res.status(200).json({
+    success: true,
+    results: locations.length,
+    locations,
+  });
+});
+
+export const deactivateLocation = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const driverId = req.user._id;
+
+  // 1. Find location
+  const location = await Location.findById(id);
+
+  if (!location) {
+    return next(new AppError("Location not found", 404));
+  }
+
+  if (!location.active) {
+    return next(new AppError("Location is already deactivated", 400));
+  }
+
+  // 2. Deactivate location
+  location.active = false;
+  location.pickedBy = driverId;
+  await location.save();
+
+  // ===== Rewards Config =====
+  const USER_POINT_REWARD = Number(process.env.USER_POINT_REWARD) || 10;
+  const USER_WALLET_REWARD = Number(process.env.USER_WALLET_REWARD) || 5;
+
+  const DRIVER_POINT_REWARD = Number(process.env.DRIVER_POINT_REWARD) || 5;
+  const DRIVER_WALLET_REWARD = Number(process.env.DRIVER_WALLET_REWARD) || 2;
+
+  // 3. Reward DRIVER
+  const driver = await User.findByIdAndUpdate(
+    driverId,
+    {
+      $inc: {
+        points: DRIVER_POINT_REWARD,
+        walletBalance: DRIVER_WALLET_REWARD,
       },
-      {
-        new: true,
-        upsert: true,
-      }
-    );
-    
-    return res.status(201).json({ success: true, message: 'Garbage location marked successfully', location });
-  } catch (error) {
-    console.error("Error saving location:", error);
-    return res.status(500).json({ success: false, message: 'Error saving location', error: error.message });
+    },
+    { new: true }
+  );
+
+  if (!driver) {
+    return next(new AppError("Driver not found", 404));
   }
-};
 
-export const getActiveLocations = async (req, res) => {
-  try {
-    const locations = await Location.find({ active: true });
+  // 4. Reward USER who marked location
+  const user = await User.findByIdAndUpdate(
+    location.markedBy,
+    {
+      $inc: {
+        points: USER_POINT_REWARD,
+        walletBalance: USER_WALLET_REWARD,
+      },
+    },
+    { new: true }
+  );
 
-    if (locations.length === 0) {
-      return res.status(404).json({ success: false, message: 'No active locations found' });
-    }
-
-    return res.status(200).json({ success: true, locations });
-  } catch (error) {
-    console.error("Error fetching active locations:", error);
-    return res.status(500).json({ success: false, message: 'Error fetching active locations', error: error.message });
+  if (!user) {
+    return next(new AppError("User who marked location not found", 404));
   }
-};
 
-export const deactivateLocation = async (req, res) => {
-  try {
-    const { id } = req.params;
+  // 5. Notifications
+  await Notification.insertMany([
+    {
+      receiver: driverId,
+      messagePreview: `You earned ${DRIVER_POINT_REWARD} points and ₹${DRIVER_WALLET_REWARD}. Wallet balance: ₹${driver.walletBalance}`,
+      isRead: false,
+    },
+    {
+      receiver: user._id,
+      messagePreview: `Your reported garbage was collected! You earned ${USER_POINT_REWARD} points and ₹${USER_WALLET_REWARD}. Wallet balance: ₹${user.walletBalance}`,
+      isRead: false,
+    },
+  ]);
 
-    const location = await Location.findByIdAndUpdate(
-      id,
-      { active: false },
-      { new: true }
-    );
+  // 6. Transactions
+  await Transaction.create([
+    {
+      user: driverId,
+      amount: DRIVER_WALLET_REWARD,
+      type: "CREDIT",
+      source: "REWARD",
+      description: "Reward for garbage pickup",
+    },
+    {
+      user: user._id,
+      amount: USER_WALLET_REWARD,
+      type: "CREDIT",
+      source: "REWARD",
+      description: "Reward for reporting garbage",
+    },
+  ]);
 
-    emitBinThrown(id);
-    // Check if location exists before accessing its fields
-    if (!location) {
-      return res.status(404).json({ message: 'Location not found' });
-    }
+  res.status(200).json({
+    success: true,
+    message: "Location deactivated and rewards distributed successfully",
+    location,
+    rewards: {
+      driver: {
+        points: DRIVER_POINT_REWARD,
+        wallet: DRIVER_WALLET_REWARD,
+      },
+      user: {
+        points: USER_POINT_REWARD,
+        wallet: USER_WALLET_REWARD,
+      },
+    },
+  });
+});
 
-    const firebaseUID = location.firebaseUID;
-    const user = await User.findOne({ firebaseUID });
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    console.log("User found:", user);
-
-    user.points += 10;
-    user.walletBalance += 2;
-    await user.save();
-     // Create notification
-        
-        const content = `Your walletBalance updated to ${user.walletBalance}`;
-    
-        const newNotification = new Notification({
-          receiver: user._id,
-          messagePreview: content,
-          isRead: false,
-        });
-        await newNotification.save();
-
-      
-    
-    res.status(200).json({
-      message: 'Location deactivated successfully',
-      location,
-    });
-  } catch (err) {
-    console.error('Error deactivating location:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};

@@ -1,33 +1,45 @@
 import User from "../models/userModel.js";
 import Transaction from "../models/transactionModel.js";
 import Email from "../utils/email.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/appError.js";
+
 const walletController = {
-  rewardUser: async (req, res) => {
+  // ADMIN / SYSTEM REWARD
+  rewardUser: catchAsync(async (req, res) => {
     const { userId, amount } = req.body;
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    user.walletBalance += amount;
-    await user.save();
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $inc: { walletBalance: amount } },
+      { new: true },
+    );
 
     await Transaction.create({
-      user: user._id,
+      user: userId,
       amount,
-      type: "reward",
+      type: "CREDIT",
+      source: "REWARD",
+      description: "Reward credited to wallet",
     });
 
-    res
-      .status(200)
-      .json({ message: "Reward added", walletBalance: user.walletBalance });
-  },
+    res.status(200).json({
+      status: "success",
+      message: "Reward added successfully",
+      walletBalance: user.walletBalance,
+    });
+  }),
 
-  withdraw: async (req, res) => {
+  withdraw: catchAsync(async (req, res) => {
     const user = req.user;
     const { amount } = req.body;
 
+    if (!amount || amount <= 0) {
+      return next(new AppError("Invalid withdrawal amount", 400));
+    }
+
     if (user.walletBalance < amount) {
-      return res.status(400).json({ message: "Insufficient balance" });
+      return next(new AppError("Insufficient wallet balance", 400));
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -36,24 +48,26 @@ const walletController = {
       { new: true },
     );
 
-    try{
-      const logoUrl = `${req.protocol}://${req.get("host")}/logo/logo.png`;
-      const dashboardURL = `${process.env.FRONTEND_URL}/dashboard`;
-      await new Email(user, dashboardURL, { logoUrl, amount }).sendOnAmountTransfer();
-    }catch (err) {
-      console.error('Email sending error:', err);
-      return next(
-        new AppError(
-          'There was an error sending the email, Try again later!',
-          500,
-        ),
-      );
-    }
+    // try{
+    //   const logoUrl = `${req.protocol}://${req.get("host")}/logo/logo.png`;
+    //   const dashboardURL = `${process.env.FRONTEND_URL}/dashboard`;
+    //   await new Email(user, dashboardURL, { logoUrl, amount }).sendOnAmountTransfer();
+    // }catch (err) {
+    //   console.error('Email sending error:', err);
+    //   return next(
+    //     new AppError(
+    //       'There was an error sending the email, Try again later!',
+    //       500,
+    //     ),
+    //   );
+    // }
 
     await Transaction.create({
       user: user._id,
-      amount,
-      type: "withdrawal",
+      amount: amount,
+      type: "DEBIT",
+      source: "WITHDRAW",
+      description: "Wallet withdrawal",
     });
 
     res.status(200).json({
@@ -61,7 +75,7 @@ const walletController = {
       walletBalance: updatedUser.walletBalance,
       message: "Amount Transfer message sent to User!",
     });
-  },
+  }),
 };
 
 export default walletController;

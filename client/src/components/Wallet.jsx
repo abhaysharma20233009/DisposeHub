@@ -3,6 +3,8 @@ import WithdrawalForm from './WithdrawalForm';
 import WalletBg from '../assets/transactionPage-bg.jpeg';
 import { getMe } from '../apis/userApi';
 import { withdrawMoney } from '../apis/transactionAPI';
+import { useDispatch } from "react-redux";
+import { updateWallet } from "../redux/authSlice";
 
 export const Wallet = () => {
   const MIN_WITHDRAWAL = Number(import.meta.env.VITE_MIN_WITHDRAWAL) || 50;
@@ -13,6 +15,8 @@ export const Wallet = () => {
   const handleWithdrawClick = () => setIsFormVisible(true);
   const handleCancel = () => setIsFormVisible(false);
 
+  const dispatch = useDispatch();
+
   const handleFormSubmit = async (formData) => {
     setWithdrawRequest(true);
     setIsFormVisible(false);
@@ -20,6 +24,7 @@ export const Wallet = () => {
     try {
       const res = await withdrawMoney(formData);
       setBalance(res.walletBalance);
+      dispatch(updateWallet(res.walletBalance));
     } catch (err) {
       console.error("Withdrawal failed", err);
       alert("Withdrawal failed");

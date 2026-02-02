@@ -68,7 +68,7 @@ const MapClickHandler = ({ onClick }) => {
   return null;
 };
 
-const CurrentLocationButton = ({ onSetLocation }) => {
+const CurrentLocationButton = () => {
   const map = useMap();
   const controlRef = useRef(null);
 
@@ -77,74 +77,26 @@ const CurrentLocationButton = ({ onSetLocation }) => {
 
     const button = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
     button.innerHTML = '📍';
-    button.title = 'Mark My Location';
+    button.title = 'Go to My Location';
     button.style.backgroundColor = 'white';
     button.style.width = '34px';
     button.style.height = '34px';
     button.style.border = 'none';
     button.style.cursor = 'pointer';
 
+    L.DomEvent.disableClickPropagation(button);
+    L.DomEvent.disableScrollPropagation(button);
+
     button.onclick = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          async (position) => {
+          (position) => {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
-            
-            try {
-              // Try to get location name using reverse geocoding
-              const response = await fetch(
-                `https://api.openrouteservice.org/geocode/reverse?api_key=5b3ce3597851110001cf6248976fd365a133423bab235324a680ada8&point.lat=${lat}&point.lon=${lng}`
-              );
-              const data = await response.json();
-              const name = data.features?.[0]?.properties?.name || 'My Current Location';
-              
-              const location = {
-                lat,
-                lng,
-                name,
-              };
-              
-              // Call the parent's onSetLocation
-              onSetLocation(location);
-              
-              // Save to backend
-              const firebaseUID = localStorage.getItem("firebaseUID");
-              if (firebaseUID) {
-                const generatedName = generateDustbinName(lat, lng);
-                
-                await fetch("http://localhost:3000/api/location/save", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    firebaseUID,
-                    name: generatedName,
-                    lat,
-                    long: lng,
-                    active: true,
-                  }),
-                })
-                  .then((response) => response.json())
-                  .then((data) => {
-                    if (data.success) {
-                      console.log("Location saved:", data.location.name);
-                      alert(`Location marked as: ${generatedName}`);
-                    } else {
-                      console.error("Failed:", data.message);
-                    }
-                  })
-                  .catch((error) => {
-                    console.error("Backend error:", error);
-                  });
-              } else {
-                console.log("Firebase UID not found.");
-                alert("Please login again. Firebase UID not found.");
-              }
-            } catch (error) {
-              console.error('Reverse geocoding failed:', error);
-            }
+
+            // Recenter the map to current location
+            map.setView([lat, lng], 14);
+
           },
           (error) => {
             console.error('Geolocation error:', error);
@@ -160,15 +112,16 @@ const CurrentLocationButton = ({ onSetLocation }) => {
         alert('Geolocation is not supported by this browser.');
       }
     };
-    
+
     const control = L.control({ position: 'topright' });
     control.onAdd = () => button;
     control.addTo(map);
     controlRef.current = control;
-  }, [map, onSetLocation]);
+  }, [map]);
 
   return null;
 };
+
 
 const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
   const [myLocation, setMyLocation] = useState(null);
@@ -291,12 +244,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
       >
         <MapClickHandler onClick={handleMapClick} />
 
-        <CurrentLocationButton
-          onSetLocation={(location) => {
-            setClickedLocation(location);
-            onMapClick(location);
-          }}
-        />
+        <CurrentLocationButton/>
 
         <TileLayer
           attribution="&copy; DisposeHub"
@@ -335,8 +283,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
           icon={greenIcon}
           eventHandlers={{
               click: () => {
-                console.log(dump.lat, dump.long);
-                  handleMarkerClick(dump);
+                handleMarkerClick(dump);
               }
           }}
         >
@@ -354,7 +301,7 @@ const LeafletMap = ({ user, selectedLocation, onMapClick, garbageDumps }) => {
             position={[clickedLocation.lat, clickedLocation.lng]}
             icon={userIcon('yellow')}
           >
-            <Popup>{clickedLocation.name}</Popup>
+            <Popup>{clickedLocation.locationName}</Popup>
           </Marker>
         )}
       </MapContainer>

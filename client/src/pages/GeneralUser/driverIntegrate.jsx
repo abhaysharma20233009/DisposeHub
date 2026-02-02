@@ -1,19 +1,17 @@
-// pages/driver/DriverIntegrate.jsx
 import React, { useState, useEffect } from 'react';
 import DriverLeafletMap from '../../components/driverLeaflet';
 import DriverNavbar from '../../components/navbarDriver';
-import axios from 'axios';
+import { getActiveLocations } from '../../apis/garbageApi';
 
 const DriverIntegrate = ({ driver }) => {
   const [locations, setLocations] = useState([]);
 
   const fetchLocations = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/location/active-locations");
-
-      const named = (res.data.locations || []).map((loc) => ({
+      const locations = await getActiveLocations();
+      const named = (locations || []).map((loc) => ({
         ...loc,
-        name: loc.name || 'Unnamed Garbage',
+        name: loc.locationName || 'Unnamed Garbage',
       }));
 
       setLocations(named);
@@ -35,7 +33,7 @@ const DriverIntegrate = ({ driver }) => {
         <DriverLeafletMap 
           driver={driver} 
           locations={locations} 
-          setLocations={setLocations} // Pass setLocations here
+          setLocations={setLocations}
         />
       </div>
     </div>

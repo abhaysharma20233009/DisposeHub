@@ -1,4 +1,3 @@
-// components/navbarDriver.jsx
 import React from 'react';
 import { Box, Paper, Typography, Button, Divider, Tooltip } from '@mui/material';
 import { styled } from '@mui/system';
@@ -6,7 +5,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
-import axios from 'axios';
+import { deactivateLocation } from "../apis/garbageApi";
 
 const Sidebar = styled(Paper)(({ theme }) => ({
   width: '100%',
@@ -38,12 +37,12 @@ const LocationBox = styled(Box)(({ theme, disabled }) => ({
 const DriverNavbar = ({ locations, setLocations }) => {
   const [passed, setPassed] = React.useState({});
 
-  const handlePass = (uid) => {
-    setPassed((prev) => ({ ...prev, [uid]: true }));
+  const handlePass = (Id) => {
+    setPassed((prev) => ({ ...prev, [Id]: true }));
   };
 
-  const handleTake = (uid) => {
-    alert(`You took the task of UID: ${uid}`);
+  const handleTake = (name) => {
+    alert(`You are going to complete task of : ${name}`);
   };
 
   const handleThrown = async (id) => {
@@ -51,14 +50,16 @@ const DriverNavbar = ({ locations, setLocations }) => {
     if (!confirm) return;
 
     try {
-      await axios.patch(`http://localhost:3000/api/location/${id}/deactivate`, {
-        active: false,
-      });
-      setLocations((prev) => prev.filter((loc) => loc._id !== id));
-    } catch (error) {
-      console.error("Failed to deactivate location:", error);
-    }
-  };
+    await deactivateLocation(id);
+
+    setLocations((prev) =>
+      prev.filter((loc) => loc._id !== id)
+    );
+  } catch (error) {
+    console.error("Failed to deactivate location:", error.message);
+  }
+};
+
 
   return (
     <Sidebar
@@ -101,8 +102,8 @@ const DriverNavbar = ({ locations, setLocations }) => {
         '&:hover': {
           transform: 'translateY(-4px)',
         },
-        opacity: passed[loc.firebaseUID] ? 0.5 : 1,
-        pointerEvents: passed[loc.firebaseUID] ? 'none' : 'auto',
+        opacity: passed[loc._id] ? 0.5 : 1,
+        pointerEvents: passed[loc._id] ? 'none' : 'auto',
       }}
     >
       <Box display="flex" alignItems="center" gap={1} mb={1}>
@@ -132,7 +133,7 @@ const DriverNavbar = ({ locations, setLocations }) => {
               borderRadius: 3,
             }}
             startIcon={<CheckCircleIcon />}
-            onClick={() => handleTake(loc.firebaseUID)}
+            onClick={() => handleTake(loc.name)}
           >
             Take
           </Button>
@@ -150,7 +151,7 @@ const DriverNavbar = ({ locations, setLocations }) => {
               borderRadius: 3,
             }}
             startIcon={<ClearIcon />}
-            onClick={() => handlePass(loc.firebaseUID)}
+            onClick={() => handlePass(loc._id)}
           >
             Pass
           </Button>

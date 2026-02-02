@@ -7,6 +7,11 @@ const locationSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  pickedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null,
+  },
   lat: {
     type: Number,
     required: true,
