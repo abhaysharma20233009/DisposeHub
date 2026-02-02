@@ -15,7 +15,7 @@ export const fetchUserTransactions = async () => {
 
 export const withdrawMoney = async (formData) => {
   const res = await api.post(
-    "/transactions/withdraw",
+    "/wallet/withdraw",
     formData,
     {
       headers: { "Content-Type": "application/json" },

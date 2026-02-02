@@ -1,7 +1,7 @@
 const TransactionItem = ({ txn }) => {
-  const isWithdrawal = txn.type === "withdrawal";
-  const amountColor = isWithdrawal ? "text-red-400" : "text-green-400";
-  const gradientBorder = isWithdrawal
+  const isDebit = txn.type === "DEBIT";
+  const amountColor = isDebit ? "text-red-400" : "text-green-400";
+  const gradientBorder = isDebit
     ? "border-red-500"
     : "border-green-500";
 
@@ -17,7 +17,7 @@ const TransactionItem = ({ txn }) => {
           {txn.type}
         </h3>
         <p className="text-sm text-gray-400 mt-1">
-          {new Date(txn.date).toLocaleString()}
+          {new Date(txn.createdAt).toLocaleString()}
         </p>
       </div>
 

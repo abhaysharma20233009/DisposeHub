@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +20,8 @@ const TransactionsPage = () => {
         } else {
           console.error("Error fetching transactions", err);
         }
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -36,7 +39,13 @@ const TransactionsPage = () => {
         <h2 className="text-3xl font-bold text-center text-cyan-400 mb-6">
           Your Transactions
         </h2>
-        <TransactionList transactions={transactions} />
+        {loading ? (
+          <p className="text-center text-white text-lg">
+            Loading transactions...
+          </p>
+        ) : (
+          <TransactionList transactions={transactions} />
+        )}
       </div>
     </div>
   );

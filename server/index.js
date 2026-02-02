@@ -48,7 +48,7 @@ app.use('/api/v1/location/', locationRoutes);
 app.use('/api/garbage', garbageRoutes); 
 
 app.use('/api/v1/rewards', RewardDistributionRouter);
-app.use('/api/wallet', walletRoutes);
+app.use('/api/v1/wallet', walletRoutes);
 app.use('/api/v1/contact', contactRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
 

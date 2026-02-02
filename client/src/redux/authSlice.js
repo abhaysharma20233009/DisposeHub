@@ -14,8 +14,13 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
     },
+    updateWallet: (state, action) => {
+      if (state.user) {
+        state.user.walletBalance = action.payload;
+      }
+    },
   },
 });
 
-export const { loginSuccess, logout } = authSlice.actions;
+export const { loginSuccess, logout, updateWallet } = authSlice.actions;
 export default authSlice.reducer;
