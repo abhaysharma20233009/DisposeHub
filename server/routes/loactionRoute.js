@@ -3,9 +3,9 @@ import { protect, restrictTo } from '../middlewares/authMiddleware.js';
 import { saveLocation, getActiveLocations, deactivateLocation } from '../controllers/LocationController.js';
 
 const router = express.Router();
-
-router.post('/save', protect, restrictTo('user'), saveLocation);
-router.get('/active-locations', getActiveLocations);
-router.patch('/:id/deactivate', deactivateLocation);
+router.use(protect)
+router.post('/save', restrictTo('user'), saveLocation);
+router.get('/active-locations', restrictTo('driver'), getActiveLocations);
+router.patch('/:id/deactivate', restrictTo('driver'), deactivateLocation);
 
 export default router;
